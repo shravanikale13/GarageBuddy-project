@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Sign Up — Garage Buddy</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ===== SAME DESIGN SYSTEM ===== */
+:root {
+  --color-bg: #0d1416;
+  --color-surface: #111b1e;
+  --color-surface-2: #162225;
+  --color-border: rgba(255,255,255,0.1);
+  --color-text: #eef7f8;
+  --color-muted: #a8bdc2;
+  --color-primary: #5bc4bc;
+  --color-primary-strong: #84e0da;
+  --radius: 16px;
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ===== GLOBAL ===== */
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color: var(--color-text);
+}
+
+/* ===== HEADER ===== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(0,0,0,0.2);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand img {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+}
+
+.brand-text strong {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+.brand-text span {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+/* ===== LAYOUT ===== */
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 80px);
+}
+
+/* ===== LEFT ===== */
+.left {
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.left h1 {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  line-height: 1.1;
+}
+
+.left p {
+  color: var(--color-muted);
+  max-width: 420px;
+}
+
+.features {
+  margin-top: 30px;
+}
+
+.features div {
+  margin-bottom: 12px;
+}
+
+/* IMAGE */
+.left img {
+  width: 100%;
+  border-radius: 20px;
+  margin-top: 30px;
+}
+
+/* ===== FORM ===== */
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-box {
+  width: 400px;
+  background: var(--color-surface);
+  padding: 40px;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+
+.form-box h2 {
+  font-family: var(--font-display);
+  margin-bottom: 10px;
+}
+
+.form-box p {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin-bottom: 20px;
+}
+
+.input {
+  width: 100%;
+  padding: 13px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: white;
+}
+
+.btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 50px;
+  background: var(--color-primary);
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--color-primary-strong);
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  padding: 20px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .container {
+    grid-template-columns: 1fr;
+  }
+  .left {
+    display: none;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+
+  <div class="brand">
+    <img src="https://static.vecteezy.com/system/resources/previews/054/553/620/non_2x/automotive-garage-logo-design-template-vector.jpg">
+    <div class="brand-text">
+      <strong>Garage Buddy</strong>
+      <span>All-in-one garage software</span>
+       
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="container">
+
+  <!-- LEFT SIDE -->
+  <div class="left">
+
+    <h1>Run Your Garage Like a Modern Business 🚗</h1>
+
+    <p>
+      Garage Buddy helps you manage customers, vehicles, billing, and workflow 
+      in one powerful platform designed for real garages and workshops.
+    </p>
+
+    <div class="features">
+      <div>✔ Manage customers & vehicles easily</div>
+      <div>✔ Track jobs and service workflow</div>
+      <div>✔ Smart billing & invoices</div>
+      <div>✔ Real-time reports & analytics</div>
+    </div>
+
+    <img src="https://img.freepik.com/free-photo/car-mechanic-using-digital-tablet-while-repairing-analyzing-engine-auto-repair-shop_637285-4307.jpg">
+
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="right">
+
+    <div class="form-box">
+
+      <h2>Create your account</h2>
+      <p>Start managing your garage operations smarter today.</p>
+      <form method="POST" action="/adduser/">
+      {% csrf_token %}
+      <input class="input" type="text" name="FName" autocomplete="off" placeholder="Full Name" required>
+      <input class="input" type="email" name="Email" autocomplete="off" placeholder="Email Address" required>
+      <input class="input" type="password" name="password" autocomplete="off" placeholder="Password" required>
+      <input class="input" type="text" name="Gname" autocomplete="off" placeholder="Garage Name" required>
+
+      <button type="submit" class="btn btn-main w-100">Sign up</button>
+
+      <p style="text-align:center; margin-top:15px;">
+        Already have an account? <a href="#" style="color:#5bc4bc;">Login</a>
+      </p>
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="footer">
+  © 2026 Garage Buddy | Powered by OS
+</div>
+
+</body>
+</html>

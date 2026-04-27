@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Service Details - Garage Buddy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b1114;
+            --panel: #11181c;
+            --panel-2: #162226;
+            --line: rgba(255,255,255,.08);
+            --text: #edf5f7;
+            --muted: #9db1b7;
+            --primary: #66d0c7;
+            --primary-2: #8be7df;
+            --warn: #f6c66f;
+            --danger: #ff6b66;
+            --success: #4ade80;
+            --soft: rgba(102,208,199,.12);
+            --shadow: 0 16px 40px rgba(0,0,0,.34);
+            --radius: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            min-height: 100%;
+            font-family: Inter, system-ui, sans-serif;
+            background: radial-gradient(circle at top left, rgba(102,208,199,.08), transparent 22%),
+                        linear-gradient(180deg, #071013, #0b1114);
+            color: var(--text);
+        }
+
+        a { text-decoration: none; color: inherit; }
+        button { border: 0; background: none; cursor: pointer; font-family: inherit; }
+
+        .container {
+            padding: 24px;
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 20px;
+            background: rgba(17,24,28,.72);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background-image: url('https://static.vecteezy.com/system/resources/previews/054/553/620/non_2x/automotive-garage-logo-design-template-vector.jpg');
+            background-size: cover;
+            background-position: center;
+            border: 1px solid var(--line);
+            flex-shrink: 0;
+        }
+
+        .header-title h1 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .header-title p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: rgba(102,208,199,.12);
+            border: 1px solid rgba(102,208,199,.25);
+            border-radius: 12px;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(102,208,199,.2);
+            border-color: rgba(102,208,199,.4);
+            transform: translateX(-4px);
+        }
+
+        /* PANEL */
+        .panel {
+            background: linear-gradient(180deg, var(--panel), rgba(20,30,34,.98));
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .panel-head {
+            padding: 20px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(0,0,0,.2);
+        }
+
+        .panel-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(74,222,128,.12);
+            color: var(--success);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #dfeef3;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* INFO GRID */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-item {
+            background: var(--panel-2);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* TABLE */
+        .table-wrap {
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            margin-bottom: 12px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+
+        .table th, .table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table th {
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            background: rgba(255,255,255,.02);
+        }
+
+        .table td {
+            font-size: 0.9rem;
+        }
+
+        .sr-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--soft);
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        /* BUTTONS */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            height: 42px;
+            padding: 0 18px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), #49b7a9);
+            color: #072126;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--text);
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(102,208,199,.35);
+            background: rgba(102,208,199,.06);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            .info-grid { grid-template-columns: 1fr; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .action-buttons { flex-direction: column; }
+            .btn { width: 100%; text-align: center; }
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-left">
+                <div class="logo"></div>
+                <div class="header-title">
+                    <h1>Service Details</h1>
+                    <p>View complete service record</p>
+                </div>
+            </div>
+            <a href="/dashboard/" class="back-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- MAIN PANEL -->
+        <section class="panel">
+            <div class="panel-head">
+                <h2 class="panel-title">{{ service.vehicle_number }}</h2>
+                <span class="status-badge">✓ Completed</span>
+            </div>
+
+            <div class="content">
+                <!-- CUSTOMER & MECHANIC INFO -->
+                <div class="section">
+                    <div class="section-title">Service Information</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Customer Name</div>
+                            <div class="info-value">{{ service.customer_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Mechanic Name</div>
+                            <div class="info-value">{{ service.mechanic_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Vehicle Number</div>
+                            <div class="info-value">{{ service.vehicle_number }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Service Date</div>
+                            <div class="info-value">{{ service.service_date }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SERVICE ITEMS -->
+                <div class="section">
+                    <div class="section-title">Service Items</div>
+                    {% if service.items %}
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 64px;">Sr. No.</th>
+                                        <th style="width: 35%;">Changes / Service</th>
+                                        <th>Description / Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in service.items %}
+                                        <tr>
+                                            <td>
+                                                <span class="sr-pill">{{ forloop.counter }}</span>
+                                            </td>
+                                            <td>{{ item.changes }}</td>
+                                            <td>{{ item.description }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-message">
+                            No service items recorded for this service.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- METADATA -->
+                <div class="section">
+                    <div class="section-title">Service Metadata</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Total Services</div>
+                            <div class="info-value">{{ service.items|length }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Status</div>
+                            <div class="info-value">{{ service.status|default:"Completed" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Created At</div>
+                            <div class="info-value">{{ service.created_at|default:service.service_date }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Record ID</div>
+                            <div class="info-value" style="font-size: 0.8rem; word-break: break-all;">{{ service._id|truncatechars:16 }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="window.print()">
+                        🖨️ Print Record
+                    </button>
+                    <a href="/service/" class="btn">
+                        ➕ Add New Service
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Auto-hide alerts
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(a => {
+                a.style.transition = 'opacity .5s';
+                setTimeout(() => a.style.opacity = '0', 4500);
+                setTimeout(() => a.remove(), 5000);
+            });
+        }, 100);
+    </script>
+</body>
+</html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Garage Buddy | Services</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1114;
+      --panel: #11181c;
+      --panel-2: #162226;
+      --line: rgba(255,255,255,.08);
+      --text: #edf5f7;
+      --muted: #9db1b7;
+      --primary: #66d0c7;
+      --primary-2: #8be7df;
+      --warn: #f6c66f;
+      --danger: #ff6b66;
+      --soft: rgba(102,208,199,.12);
+      --shadow: 0 16px 40px rgba(0,0,0,.34);
+      --radius: 24px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    html, body {
+      min-height: 100%;
+      font-family: Inter, system-ui, sans-serif;
+      background: radial-gradient(circle at top left, rgba(102,208,199,.08), transparent 22%),
+                  linear-gradient(180deg, #071013, #0b1114);
+      color: var(--text);
+    }
+    a { text-decoration: none; color: inherit; }
+    button, input, select, textarea { font: inherit; }
+ 
+    .main {
+      padding: 24px;
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+ 
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(17,24,28,.72);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+    .top-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .logo {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      background-image: url('https://static.vecteezy.com/system/resources/previews/054/553/620/non_2x/automotive-garage-logo-design-template-vector.jpg');
+      background-size: cover;
+      background-position: center;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+    .greet { font-weight: 700; font-size: 1rem; }
+    .muted { color: var(--muted); font-size: .85rem; }
+ 
+    .search-section { display: flex; align-items: center; gap: 8px; }
+    .search-input {
+      width: 280px; height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 0 12px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .search-input:focus {
+      border-color: rgba(102,208,199,.45);
+      box-shadow: 0 0 0 3px rgba(102,208,199,.08);
+    }
+    .icon-btn {
+      width: 42px; height: 42px;
+      border: 1px solid rgba(102,208,199,.18);
+      border-radius: 14px;
+      background: rgba(102,208,199,.12);
+      color: var(--primary);
+      cursor: pointer;
+      display: grid; place-items: center;
+      transition: background .2s;
+    }
+    .icon-btn:hover { background: rgba(102,208,199,.22); }
+ 
+    /* ── ALERTS ── */
+    .alert {
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+      animation: slideIn .3s ease-out;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .alert-success { background: rgba(102,208,199,.15); border: 1px solid rgba(102,208,199,.3); color: #66d0c7; }
+    .alert-error   { background: rgba(255,107,102,.15); border: 1px solid rgba(255,107,102,.3); color: #ff6b66; }
+    .close-alert { margin-left: auto; background: none; border: none; color: inherit; cursor: pointer; font-size: 1.2rem; }
+ 
+    /* ── PANEL ── */
+    .panel {
+      margin-top: 16px;
+      background: linear-gradient(180deg, var(--panel), rgba(20,30,34,.98));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .panel-title { font-size: 1.15rem; font-weight: 700; }
+    .panel-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(102,208,199,.12);
+      border: 1px solid rgba(102,208,199,.25);
+      border-radius: 12px;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: all .3s;
+    }
+    .panel-back-btn:hover {
+      background: rgba(102,208,199,.2);
+      border-color: rgba(102,208,199,.4);
+      transform: translateX(-4px);
+    }
+    .panel-back-btn svg { width: 16px; height: 16px; }
+ 
+    .content { padding: 20px; }
+ 
+    /* ── META STACK ── */
+    .meta-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 22px;
+      max-width: 420px;
+    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .label { font-size: .85rem; color: var(--muted); font-weight: 600; }
+    .input {
+      width: 100%; height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 0 12px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .input:focus {
+      border-color: rgba(102,208,199,.45);
+      box-shadow: 0 0 0 3px rgba(102,208,199,.08);
+    }
+ 
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--line);
+      margin: 0 0 22px;
+    }
+ 
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #dfeef3;
+      margin-bottom: 12px;
+    }
+ 
+    /* ── TABLE ── */
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+    .table th, .table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      text-align: left;
+      vertical-align: middle;
+    }
+    .table tr:last-child td { border-bottom: none; }
+    .table th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: .82rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      background: rgba(255,255,255,.02);
+    }
+    .table td:first-child { color: var(--muted); font-weight: 700; font-size: .85rem; width: 60px; text-align: left; }
+    .table input { width: 100%; }
+ 
+    /* Serial number pill */
+    .sr-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--soft);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: .8rem;
+    }
+ 
+    /* ── BUTTONS ── */
+    .btn {
+      height: 42px;
+      padding: 0 18px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), #49b7a9);
+      color: #072126;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: .9; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+ 
+    .ghost {
+      height: 38px;
+      padding: 0 14px;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: .85rem;
+      transition: border-color .2s, background .2s;
+    }
+    .ghost:hover { border-color: rgba(102,208,199,.35); background: rgba(102,208,199,.06); }
+ 
+    .danger-ghost {
+      height: 38px;
+      padding: 0 14px;
+      background: transparent;
+      border: 1px solid rgba(255,107,102,.25);
+      color: var(--danger);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: .82rem;
+      transition: background .2s, border-color .2s;
+    }
+    .danger-ghost:hover { background: rgba(255,107,102,.1); border-color: rgba(255,107,102,.45); }
+ 
+    .row-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+ 
+    /* ── SUMMARY ── */
+    .summary-strip {
+      margin-top: 24px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .summary-info { display: flex; flex-direction: column; gap: 4px; }
+    .summary-info .summary-label { font-size: .82rem; color: var(--muted); font-weight: 600; }
+    .summary-info .summary-val { font-size: .95rem; font-weight: 700; }
+ 
+    .summary-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+ 
+    /* ── STATUS BADGE ── */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(246,198,111,.12);
+      color: var(--warn);
+      font-size: .75rem;
+      font-weight: 700;
+    }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--warn); animation: pulse 1.6s infinite; }
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: .3; }
+    }
+ 
+    /* ── EMPTY STATE ── */
+    .empty-row td {
+      text-align: center;
+      color: var(--muted);
+      padding: 28px 14px;
+      font-size: .9rem;
+    }
+ 
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .meta-row { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .meta-row { grid-template-columns: 1fr 1fr; }
+      .search-input { width: 180px; }
+      .summary-strip { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 560px) {
+      .main { padding: 14px; }
+      .content { padding: 14px; }
+      .meta-row { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; gap: 10px; }
+      .search-input { width: 100%; max-width: 100%; }
+      .panel-head { flex-direction: column; align-items: flex-start; }
+      .panel-back-btn { width: 100%; justify-content: center; }
+      .btn, .ghost { width: 100%; }
+      .row-actions { flex-direction: column; }
+      .summary-actions { width: 100%; flex-direction: column; }
+      .summary-actions .btn, .summary-actions .ghost { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="main">
+ 
+    <!-- ── MESSAGES ── -->
+    {% if messages %}
+      <div id="messagesContainer">
+        {% for message in messages %}
+          <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+            <span>{% if message.tags == 'success' %}✓{% else %}✕{% endif %}</span>
+            <span>{{ message }}</span>
+            <button class="close-alert" onclick="this.parentElement.remove()">&times;</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+ 
+    <!-- ── TOPBAR ── -->
+    <header class="topbar">
+      <div class="top-left">
+        <div class="logo"></div>
+        <div>
+          <div class="greet">Services</div>
+          <div class="muted">Manage & log vehicle service records</div>
+        </div>
+      </div>
+      <div class="search-section">
+        <input id="searchInput" class="search-input" type="text" placeholder="Search customer or vehicle…" oninput="filterTable(this.value)" />
+        <button class="icon-btn" aria-label="Search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+ 
+    <!-- ── SERVICE PANEL ── -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">Service Record</h2>
+          <span class="status-badge" id="statusBadge">
+            <span class="status-dot"></span> Draft
+          </span>
+        </div>
+        <a href="/dashboard/" class="panel-back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Back to Dashboard
+        </a>
+      </div>
+ 
+      <div class="content">
+        <form action="/service/" method="POST" id="serviceForm">
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+ 
+          <!-- Meta Fields -->
+          <div class="meta-row">
+            <div class="field">
+              <div class="label">Customer Name</div>
+              <input class="input" type="text" name="customer_name" placeholder="Enter customer name" required autocomplete="off">
+            </div>
+            <div class="field">
+              <div class="label">Mechanic Name</div>
+              <input class="input" type="text" name="mechanic_name" placeholder="Enter mechanic name" required autocomplete="off">
+            </div>
+            <div class="field">
+              <div class="label">Vehicle Number</div>
+              <input class="input" type="text" name="vehicle_number" placeholder="e.g. MH12 AB 1234" required autocomplete="off">
+            </div>
+            <div class="field">
+              <div class="label">Service Date</div>
+              <input class="input" type="date" name="service_date" id="serviceDate" required>
+            </div>
+          </div>
+ 
+          <div class="divider"></div>
+ 
+          <!-- Service Items Table -->
+          <div class="section-title">Service Items</div>
+          <div class="table-wrap">
+            <table class="table" id="serviceTable">
+              <thead>
+                <tr>
+                  <th style="width:64px; text-align:left;">Sr. No.</th>
+                  <th style="width:35%">Changes / Service</th>
+                  <th>Description / Details</th>
+                  <th style="width:160px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <!-- rows injected by JS -->
+              </tbody>
+            </table>
+          </div>
+ 
+          <div class="row-actions">
+            <button class="btn" id="addRowBtn" type="button">+ Add Service</button>
+            <button class="ghost" type="button" onclick="clearAll()">Clear All</button>
+          </div>
+ 
+          <!-- Summary Strip -->
+          <div class="summary-strip">
+            <div class="summary-info">
+              <span class="summary-label">Generated On</span>
+              <span class="summary-val" id="displayDate">—</span>
+            </div>
+            <div class="summary-info">
+              <span class="summary-label">Total Services</span>
+              <span class="summary-val" id="serviceCount">0</span>
+            </div>
+            <div class="summary-info">
+              <span class="summary-label">Status</span>
+              <span class="summary-val">Draft</span>
+            </div>
+            <div class="summary-actions">
+              <button class="ghost" type="button">Save Draft</button>
+              <button class="btn" type="submit">Save Service Record</button>
+            </div>
+          </div>
+ 
+        </form>
+      </div>
+    </section>
+ 
+  </main>
+ 
+  <script>
+    // ── Init ──
+    const tbody        = document.getElementById('tableBody');
+    const countDisplay = document.getElementById('serviceCount');
+    const dateDisplay  = document.getElementById('displayDate');
+    const dateInput    = document.getElementById('serviceDate');
+ 
+    // Set today's date as default
+    const today = new Date();
+    const isoToday = today.toISOString().split('T')[0];
+    dateInput.value = isoToday;
+    dateDisplay.textContent = today.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+ 
+    dateInput.addEventListener('change', () => {
+      const d = new Date(dateInput.value);
+      dateDisplay.textContent = isNaN(d) ? '—' : d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+    });
+ 
+    // ── Row Management ──
+    let rowId = 0;
+ 
+    function createRow(changes = '', desc = '') {
+      rowId++;
+      const tr = document.createElement('tr');
+      tr.dataset.rid = rowId;
+      tr.dataset.mode = 'edit'; // start in edit mode
+      tr.innerHTML = `
+        <td><span class="sr-pill">${tbody.querySelectorAll('tr:not(.empty-row)').length + 1}</span></td>
+        <td><input class="input row-changes" type="text" name="service_changes[]" placeholder="e.g. Oil Change" value="${changes}"></td>
+        <td><input class="input row-desc" type="text" name="service_desc[]" placeholder="e.g. Replaced with Castrol 5W-30 full synthetic" value="${desc}"></td>
+        <td>
+          <div class="action-btns">
+            <button class="danger-ghost remove-row" type="button" title="Remove row">✕</button>
+          </div>
+        </td>
+      `;
+      return tr;
+    }
+ 
+    function switchToViewMode(tr) {
+      const changes = tr.querySelector('.row-changes').value || '—';
+      const desc    = tr.querySelector('.row-desc').value   || '—';
+      tr.dataset.mode = 'view';
+      tr.querySelector('td:nth-child(2)').innerHTML = `<span class="cell-text">${changes}</span><input type="hidden" name="service_changes[]" value="${changes}">`;
+      tr.querySelector('td:nth-child(3)').innerHTML = `<span class="cell-text">${desc}</span><input type="hidden" name="service_desc[]" value="${desc}">`;
+      tr.querySelector('.action-btns').innerHTML = `
+        <button class="edit-ghost edit-row" type="button" title="Edit row">✎ Edit</button>
+        <button class="danger-ghost remove-row" type="button" title="Remove row">✕</button>
+      `;
+    }
+ 
+    function switchToEditMode(tr) {
+      const changes = tr.querySelector('input[name="service_changes[]"]').value;
+      const desc    = tr.querySelector('input[name="service_desc[]"]').value;
+      tr.dataset.mode = 'edit';
+      tr.querySelector('td:nth-child(2)').innerHTML = `<input class="input row-changes" type="text" name="service_changes[]" placeholder="e.g. Oil Change" value="${changes}">`;
+      tr.querySelector('td:nth-child(3)').innerHTML = `<input class="input row-desc" type="text" name="service_desc[]" placeholder="e.g. Replaced with Castrol 5W-30 full synthetic" value="${desc}">`;
+      tr.querySelector('.action-btns').innerHTML = `
+        <button class="danger-ghost remove-row" type="button" title="Remove row">✕</button>
+      `;
+    }
+ 
+    function addRow() {
+      removeEmpty();
+      tbody.appendChild(createRow());
+      updateCounters();
+    }
+ 
+    function removeEmpty() {
+      const empty = tbody.querySelector('.empty-row');
+      if (empty) empty.remove();
+    }
+ 
+    function showEmpty() {
+      const tr = document.createElement('tr');
+      tr.className = 'empty-row';
+      tr.innerHTML = `<td colspan="4">No service items yet. Click <strong>+ Add Service</strong> to get started.</td>`;
+      tbody.appendChild(tr);
+    }
+ 
+    function updateCounters() {
+      const rows = tbody.querySelectorAll('tr:not(.empty-row)');
+      // renumber
+      rows.forEach((r, i) => {
+        const pill = r.querySelector('.sr-pill');
+        if (pill) pill.textContent = i + 1;
+      });
+      countDisplay.textContent = rows.length;
+      if (rows.length === 0) showEmpty();
+    }
+ 
+    function clearAll() {
+      tbody.innerHTML = '';
+      rowId = 0;
+      showEmpty();
+      countDisplay.textContent = 0;
+    }
+ 
+    // Delegate remove clicks
+    tbody.addEventListener('click', e => {
+      if (e.target.classList.contains('remove-row')) {
+        e.target.closest('tr').remove();
+        updateCounters();
+      }
+    });
+ 
+    document.getElementById('addRowBtn').addEventListener('click', addRow);
+ 
+    // Start with one empty row
+    addRow();
+ 
+    // ── Search / Filter ──
+    function filterTable(query) {
+      const q = query.toLowerCase().trim();
+      const rows = tbody.querySelectorAll('tr:not(.empty-row)');
+      rows.forEach(r => {
+        const text = r.textContent.toLowerCase();
+        r.style.display = (!q || text.includes(q)) ? '' : 'none';
+      });
+    }
+ 
+    // ── Auto-hide alerts ──
+    setTimeout(() => {
+      document.querySelectorAll('.alert').forEach(a => {
+        a.style.transition = 'opacity .5s';
+        setTimeout(() => a.style.opacity = '0', 4500);
+        setTimeout(() => a.remove(), 5000);
+      });
+    }, 100);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vehicle Management | Garage Buddy</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    :root {
+      --bg: #0b1215;
+      --panel: #0f1c20;
+      --panel2: #111f24;
+      --border: rgba(87,199,193,0.13);
+      --border2: rgba(255,255,255,0.06);
+      --text: #dff5f6;
+      --muted: #7a9298;
+      --accent: #57c7c1;
+      --accent2: #3da8a2;
+      --red: #e05555;
+      --green: #4cba8a;
+      --amber: #d4a540;
+    }
+ 
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(ellipse at top, rgba(87,199,193,0.07) 0%, transparent 40%),
+        linear-gradient(180deg, #0a1013 0%, #0b1215 100%);
+      min-height: 100vh;
+      color: var(--text);
+    }
+ 
+    /* ── TOP NAV ── */
+    .topbar {
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  flex-wrap: nowrap; /* ✅ added */
+  padding: 14px 32px;
+  border-bottom: 1px solid var(--border2);
+  background: rgba(11,18,21,0.9);
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(10px);
+}
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon {
+      width: 34px; height: 34px;
+      background: rgba(87,199,193,0.15);
+      border: 1px solid rgba(87,199,193,0.28);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand-icon svg { width: 17px; height: 17px; stroke: #57c7c1; fill: none; stroke-width: 1.8; }
+    .brand-name { font-size: 1rem; font-weight: 700; color: #f0fbfc; }
+    .brand-sub { font-size: 0.7rem; color: var(--muted); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .search-wrap { position: relative; }
+    .search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; stroke: var(--muted); fill: none; stroke-width: 2; pointer-events: none; }
+    .search-wrap input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border2);
+      border-radius: 9px;
+      color: var(--text);
+      font-size: 0.82rem;
+      padding: 8px 12px 8px 32px;
+      outline: none; width: 240px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input::placeholder { color: #3a5558; }
+    .search-wrap input:focus { border-color: rgba(87,199,193,0.35); }
+    .nav-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(87,199,193,0.1);
+      border: 1px solid rgba(87,199,193,0.22);
+      color: #8ce7e2; padding: 5px 10px; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .ndot { width: 6px; height: 6px; border-radius: 50%; background: #57c7c1; animation: blink 2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1}50%{opacity:0.35} }
+ 
+    /* ── PAGE WRAP ── */
+    .page { max-width: 1160px; margin: 0 auto; padding: 28px 32px 48px; }
+ 
+    /* ── STAT CARDS ── */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--panel2);
+      border: 1px solid var(--border2);
+      border-radius: 12px; padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .stat-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .stat-icon svg { width: 18px; height: 18px; fill: none; stroke-width: 1.8; }
+    .stat-icon.teal { background: rgba(87,199,193,0.12); border: 1px solid rgba(87,199,193,0.2); }
+    .stat-icon.teal svg { stroke: #57c7c1; }
+    .stat-icon.green { background: rgba(76,186,138,0.12); border: 1px solid rgba(76,186,138,0.2); }
+    .stat-icon.green svg { stroke: #4cba8a; }
+    .stat-icon.amber { background: rgba(212,165,64,0.12); border: 1px solid rgba(212,165,64,0.2); }
+    .stat-icon.amber svg { stroke: #d4a540; }
+    .stat-icon.red { background: rgba(224,85,85,0.12); border: 1px solid rgba(224,85,85,0.2); }
+    .stat-icon.red svg { stroke: #e05555; }
+    .stat-n { font-size: 1.5rem; font-weight: 800; color: #f0fbfc; line-height: 1; }
+    .stat-l { font-size: 0.7rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+ 
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .page-title { font-size: 1.1rem; font-weight: 700; color: #f0fbfc; }
+    .page-sub { font-size: 0.74rem; color: var(--muted); margin-top: 1px; }
+    .filter-select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text); font-size: 0.78rem;
+      padding: 7px 10px; outline: none; font-family: inherit;
+      cursor: pointer;
+    }
+    .filter-select option { background: #0d1e22; }
+    .btn-add {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 9px;
+      background: linear-gradient(135deg, #57c7c1, #3da8a2);
+      border: none; color: #04221f;
+      font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: all 0.22s;
+      white-space: nowrap;
+    }
+    .btn-add:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(87,199,193,0.25); }
+    .btn-add svg { width: 13px; height: 13px; stroke: #04221f; fill: none; stroke-width: 2.5; }
+    .btn-export {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 9px;
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted); font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
+    }
+    .btn-export:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .btn-export svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  border: 1px solid var(--border2);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,0.08);
+}
+ 
+    /* ── TABLE ── */
+    .table-wrap {
+      background: var(--panel2);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    col.c-id    { width: 90px; }
+    col.c-cust  { width: 160px; }
+    col.c-type  { width: 100px; }
+    col.c-plate { width: 130px; }
+    col.c-model { width: 175px; }
+    col.c-fuel  { width: 95px; }
+    col.c-tx    { width: 95px; }
+    col.c-status{ width: 90px; }
+    col.c-acts  { width: 120px; }
+    thead { background: rgba(87,199,193,0.05); border-bottom: 1px solid var(--border); }
+    th {
+      padding: 12px 14px; text-align: left;
+      font-size: 0.68rem; font-weight: 700;
+      color: var(--accent); text-transform: uppercase; letter-spacing: 0.07em;
+      white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.18s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(87,199,193,0.04); }
+    td {
+      padding: 13px 14px; font-size: 0.82rem; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .td-id { font-family: monospace; font-size: 0.78rem; color: var(--accent); font-weight: 700; }
+    .td-name { font-weight: 600; color: #e8f8f8; }
+    .type-pill {
+      display: inline-flex; padding: 3px 9px; border-radius: 6px;
+      font-size: 0.7rem; font-weight: 700;
+      background: rgba(87,199,193,0.1); border: 1px solid rgba(87,199,193,0.18); color: #8ce7e2;
+    }
+    .plate {
+      font-family: "Courier New", monospace;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      padding: 3px 8px; border-radius: 5px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; color: #c8e8ea;
+    }
+    .fuel-pill {
+      display: inline-flex; padding: 3px 8px; border-radius: 6px;
+      font-size: 0.68rem; font-weight: 600;
+      background: rgba(212,165,64,0.1); border: 1px solid rgba(212,165,64,0.18); color: #d4a540;
+    }
+    .tx-pill {
+      display: inline-flex; padding: 3px 8px; border-radius: 6px;
+      font-size: 0.68rem; font-weight: 600;
+      background: rgba(116,116,200,0.1); border: 1px solid rgba(116,116,200,0.18); color: #a8a8e8;
+    }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 6px;
+      font-size: 0.7rem; font-weight: 700;
+    }
+    .status-pill.active { background: rgba(76,186,138,0.1); border: 1px solid rgba(76,186,138,0.2); color: #4cba8a; }
+    .status-pill.inactive { background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.2); color: #e05555; }
+    .sdot { width: 6px; height: 6px; border-radius: 50%; }
+    .sdot.a { background: #4cba8a; }
+    .sdot.i { background: #e05555; }
+    .act-btns { display: flex; gap: 5px; }
+    .ibtn {
+      width: 28px; height: 28px; border-radius: 7px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.03);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.18s; flex-shrink: 0;
+    }
+    .ibtn svg { width: 13px; height: 13px; fill: none; stroke-width: 1.8; }
+    .ibtn.view svg { stroke: var(--muted); }
+    .ibtn.view:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+    .ibtn.edit svg { stroke: var(--accent); }
+    .ibtn.edit:hover { background: rgba(87,199,193,0.12); border-color: rgba(87,199,193,0.3); }
+    .ibtn.del svg { stroke: var(--red); }
+    .ibtn.del:hover { background: rgba(224,85,85,0.12); border-color: rgba(224,85,85,0.3); }
+ 
+    /* ── EMPTY / LOADING ── */
+    .empty {
+      text-align: center; padding: 60px 20px; color: var(--muted);
+    }
+    .empty-icon { font-size: 2.2rem; margin-bottom: 12px; opacity: 0.4; }
+    .empty p { font-size: 0.84rem; }
+    .empty-hint { font-size: 0.74rem; margin-top: 6px; opacity: 0.7; }
+ 
+    /* ── PAGINATION ── */
+    .pagination { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-top: 1px solid var(--border2); }
+    .pag-info { font-size: 0.74rem; color: var(--muted); }
+    .pag-btns { display: flex; gap: 5px; }
+    .pag-btn {
+      padding: 5px 10px; border-radius: 7px;
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted); font-size: 0.74rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all 0.18s;
+    }
+    .pag-btn:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .pag-btn.on { background: rgba(87,199,193,0.15); border-color: rgba(87,199,193,0.35); color: var(--accent); }
+ 
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(7,14,16,0.82); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: linear-gradient(160deg, #0f1e22, #0b1518);
+      border: 1px solid var(--border);
+      border-radius: 16px; width: 520px; max-width: 95vw;
+      padding: 24px; animation: mfade 0.25s ease;
+    }
+    @keyframes mfade { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .modal-title { font-size: 1rem; font-weight: 700; color: #f0fbfc; }
+    .modal-close { width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--border2); background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); font-size: 1rem; }
+    .modal-close:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+    .mg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mfield { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+    .mfield label { font-size: 0.72rem; font-weight: 600; color: #8fa8ae; }
+    .req { color: var(--accent); }
+    .mfield input, .mfield select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 9px; color: var(--text);
+      font-size: 0.82rem; padding: 9px 11px;
+      outline: none; font-family: inherit; width: 100%;
+      transition: border-color 0.2s;
+    }
+    .mfield select option { background: #0d1e22; }
+    .mfield input::placeholder { color: #3a5558; }
+    .mfield input:focus, .mfield select:focus { border-color: rgba(87,199,193,0.4); box-shadow: 0 0 0 3px rgba(87,199,193,0.07); }
+    .tog-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tog {
+      padding: 5px 11px; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 7px; background: rgba(255,255,255,0.02);
+      color: var(--muted); font-size: 0.74rem; font-weight: 600;
+      cursor: pointer; transition: all 0.18s; font-family: inherit;
+    }
+    .tog:hover { border-color: rgba(87,199,193,0.28); color: #a8e8e4; }
+    .tog.on { border-color: var(--accent); background: rgba(87,199,193,0.13); color: var(--accent); }
+    .modal-btns { display: flex; gap: 8px; margin-top: 18px; }
+    .mbtn-cancel {
+      padding: 9px 16px; border-radius: 9px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted); font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+    }
+    .mbtn-cancel:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .mbtn-save {
+      flex: 1; padding: 9px; border-radius: 9px;
+      background: linear-gradient(135deg, #57c7c1, #3da8a2);
+      border: none; color: #04221f;
+      font-size: 0.84rem; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: all 0.22s;
+    }
+    .mbtn-save:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(87,199,193,0.25); }
+ 
+    /* ── CONFIRM DELETE ── */
+    .del-modal {
+      background: linear-gradient(160deg, #0f1e22, #0b1518);
+      border: 1px solid rgba(224,85,85,0.22);
+      border-radius: 16px; width: 320px;
+      padding: 24px; text-align: center;
+      animation: mfade 0.25s ease;
+    }
+    .del-icon { width: 46px; height: 46px; border-radius: 50%; background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.22); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+    .del-icon svg { width: 20px; height: 20px; stroke: #e05555; fill: none; stroke-width: 1.8; }
+    .del-title { font-size: 0.96rem; font-weight: 700; color: #f0fbfc; margin-bottom: 7px; }
+    .del-msg { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 18px; }
+    .del-btns { display: flex; gap: 8px; }
+    .mbtn-del { flex:1; padding: 9px; border-radius: 9px; background: rgba(224,85,85,0.85); border: none; color: #fff; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .mbtn-del:hover { background: var(--red); }
+ 
+    /* ── VIEW MODAL ── */
+    .view-modal {
+      background: linear-gradient(160deg, #0f1e22, #0b1518);
+      border: 1px solid var(--border);
+      border-radius: 16px; width: 460px; max-width: 95vw;
+      padding: 24px; animation: mfade 0.25s ease;
+    }
+    .view-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; margin-right: 14px; flex-shrink: 0; }
+    .view-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+    .view-cell { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 12px; }
+    .view-cell .vl { font-size: 0.64rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
+    .view-cell .vv { font-size: 0.8rem; color: #d8f2f2; font-weight: 600; }
+ 
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 20px; right: 20px;
+      background: #0f2428; border: 1px solid rgba(87,199,193,0.28);
+      border-radius: 11px; padding: 11px 15px;
+      display: flex; align-items: center; gap: 9px;
+      color: #d8f2f2; font-size: 0.8rem; font-weight: 600;
+      opacity: 0; transform: translateY(8px);
+      transition: all 0.3s; z-index: 500; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.err { border-color: rgba(224,85,85,0.3); }
+    .tic { width: 22px; height: 22px; border-radius: 50%; background: rgba(87,199,193,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; flex-shrink: 0; }
+    .toast.err .tic { background: rgba(224,85,85,0.15); }
+  </style>
+</head>
+<body>
+ 
+<!-- TOP NAV -->
+<!-- TOP NAV -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">
+      <img src="https://static.vecteezy.com/system/resources/previews/054/553/620/non_2x/automotive-garage-logo-design-template-vector.jpg" 
+           alt="Garage Logo"
+           style="width:100%; height:100%; object-fit: cover; border-radius: 9px;">
+    </div>
+    <div>
+      <div class="brand-name">Garage Buddy</div>
+      <div class="brand-sub">Vehicle Management</div>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search reg no, customer, model…" oninput="applyFilters()"/>
+    </div>
+    <button class="back-btn" onclick="goToDashboard()">
+  ← Back to Dashboard
+</button>
+  </div>
+</div>
+ 
+  <!-- STATS -->
+  <div class="stats" id="statsRow">
+    <div class="stat-card">
+      <div class="stat-icon teal"><svg viewBox="0 0 24 24"><path d="M1 17l2-6h18l2 6H1z"/><path d="M5 17v2m14-2v2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></div>
+      <div><div class="stat-n" id="st-total">0</div><div class="stat-l">Total Vehicles</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <div><div class="stat-n" id="st-active">0</div><div class="stat-l">Active</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div><div class="stat-n" id="st-custs">0</div><div class="stat-l">Customers</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></div>
+      <div><div class="stat-n" id="st-inactive">0</div><div class="stat-l">Inactive</div></div>
+    </div>
+  </div>
+ 
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div>
+      <div class="page-title">Registered Vehicles</div>
+      
+    </div>
+    <div class="toolbar-left">
+      <select class="filter-select" id="filterFuel" onchange="applyFilters()">
+        <option value="">All Fuel Types</option>
+        <option value="Petrol">Petrol</option>
+        <option value="Diesel">Diesel</option>
+        <option value="CNG">CNG</option>
+        <option value="Electric">Electric</option>
+        <option value="Hybrid">Hybrid</option>
+      </select>
+      <select class="filter-select" id="filterTx" onchange="applyFilters()">
+        <option value="">All Transmission</option>
+        <option value="Manual">Manual</option>
+        <option value="Automatic">Automatic</option>
+        <option value="CVT">CVT</option>
+        <option value="DCT">DCT</option>
+      </select>
+      <select class="filter-select" id="filterStatus" onchange="applyFilters()">
+        <option value="">All Status</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+      <button class="btn-export" onclick="exportCSV()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+      <button class="btn-add" onclick="openAdd()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Vehicle
+      </button>
+    </div>
+  </div>
+ 
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <colgroup>
+        <col class="c-id"/><col class="c-cust"/><col class="c-type"/>
+        <col class="c-plate"/><col class="c-model"/>
+        <col class="c-fuel"/><col class="c-tx"/>
+        <col class="c-status"/><col class="c-acts"/>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Veh ID</th>
+          <th>Customer</th>
+          <th>Type</th>
+          <th>Vehicle No.</th>
+          <th>Make / Model / Year</th>
+          <th>Fuel</th>
+          <th>Transmission</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="pagination" id="paginationRow">
+      <div class="pag-info" id="pagInfo"></div>
+      <div class="pag-btns" id="pagBtns"></div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="editOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">Add Vehicle</div>
+      <div class="modal-close" onclick="closeEdit()">✕</div>
+    </div>
+ 
+    <div class="mfield">
+      <label>Customer <span class="req">*</span></label>
+      <select id="mCustomer">
+        <option value="">Select customer…</option>
+      </select>
+    </div>
+ 
+    <div class="mg2">
+      <div class="mfield">
+        <label>Registration No. <span class="req">*</span></label>
+        <input id="mReg" placeholder="MH-12-AB-1234"/>
+      </div>
+      <div class="mfield">
+        <label>Nickname</label>
+        <input id="mNick" placeholder="Family Car"/>
+      </div>
+    </div>
+ 
+    <div class="mg2">
+      <div class="mfield">
+        <label>Make <span class="req">*</span></label>
+        <input id="mMake" placeholder="Maruti"/>
+      </div>
+      <div class="mfield">
+        <label>Model <span class="req">*</span></label>
+        <input id="mModel" placeholder="Swift"/>
+      </div>
+    </div>
+ 
+    <div class="mg2">
+      <div class="mfield">
+        <label>Year</label>
+        <input id="mYear" type="number" placeholder="2022" min="1900" max="2026"/>
+      </div>
+      <div class="mfield">
+        <label>Odometer (km)</label>
+        <input id="mOdo" type="number" placeholder="45000"/>
+      </div>
+    </div>
+ 
+    <div class="mfield">
+      <label>Fuel Type</label>
+      <div class="tog-row" id="mFuelTogs">
+        <button class="tog" onclick="togSel(this,'mfuel')">⛽ Petrol</button>
+        <button class="tog" onclick="togSel(this,'mfuel')">🛢 Diesel</button>
+        <button class="tog" onclick="togSel(this,'mfuel')">🌿 CNG</button>
+        <button class="tog" onclick="togSel(this,'mfuel')">⚡ Electric</button>
+        <button class="tog" onclick="togSel(this,'mfuel')">🔋 Hybrid</button>
+      </div>
+    </div>
+ 
+    <div class="mfield">
+      <label>Transmission</label>
+      <div class="tog-row" id="mTxTogs">
+        <button class="tog" onclick="togSel(this,'mtx')">🔧 Manual</button>
+        <button class="tog" onclick="togSel(this,'mtx')">🤖 Automatic</button>
+        <button class="tog" onclick="togSel(this,'mtx')">⚙️ CVT</button>
+        <button class="tog" onclick="togSel(this,'mtx')">🏎 DCT</button>
+      </div>
+    </div>
+ 
+    <div class="mg2">
+      <div class="mfield">
+        <label>VIN / Chassis</label>
+        <input id="mVin" placeholder="17-digit VIN"/>
+      </div>
+      <div class="mfield">
+        <label>Status</label>
+        <select id="mStatus">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+ 
+    <div class="modal-btns">
+      <button class="mbtn-cancel" onclick="closeEdit()">Cancel</button>
+      <button class="mbtn-save" onclick="saveVehicle()">Save Vehicle</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- DELETE CONFIRM -->
+<div class="modal-overlay" id="delOverlay">
+  <div class="del-modal">
+    <div class="del-icon"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
+    <div class="del-title">Delete Vehicle?</div>
+    <div class="del-msg" id="delMsg">This will permanently remove the vehicle record.</div>
+    <div class="del-btns">
+      <button class="mbtn-cancel" onclick="closeDelete()">Cancel</button>
+      <button class="mbtn-del" id="delConfirmBtn">Delete</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- VIEW MODAL -->
+<div class="modal-overlay" id="viewOverlay">
+  <div class="view-modal">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center">
+        <div class="view-avatar" id="vAvatar"></div>
+        <div>
+          <div class="modal-title" id="vName"></div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px" id="vMeta"></div>
+        </div>
+      </div>
+      <div class="modal-close" onclick="closeView()">✕</div>
+    </div>
+    <div class="view-grid" id="vGrid"></div>
+    <div class="modal-btns" style="margin-top:14px">
+      <button class="mbtn-cancel" onclick="closeView()">Close</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="toast" id="toast">
+  <div class="tic" id="tic"></div>
+  <span id="tmsg"></span>
+</div>
+ 
+<script>
+  // ── CSRF TOKEN UTILITY ──
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  // ── DATA FROM DJANGO ──
+const djangoVehicles = {{ vehicles }};
+
+const CKEY='gb_customers', VKEY='gb_vehicles';
+let editing=null, pendingDel=null, currentPage=1;
+const PER=10;
+let filtered=[];
+
+function loadC(){try{return JSON.parse(localStorage.getItem(CKEY)||'[]')}catch{return[]}}
+function loadV(){try{return JSON.parse(localStorage.getItem(VKEY)||'[]')}catch{return[]}}
+function saveV(d){localStorage.setItem(VKEY,JSON.stringify(d))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
+
+// Get vehicles from Django or localStorage
+function getVehicles(){
+  if(djangoVehicles && djangoVehicles.length > 0) {
+    // Parse if it's a string (from Django JSON)
+    if(typeof djangoVehicles === 'string') {
+      try {
+        return JSON.parse(djangoVehicles);
+      } catch(e) {
+        console.error('Failed to parse vehicles:', e);
+        return [];
+      }
+    }
+    return djangoVehicles;
+  }
+  return loadV();
+}
+
+// Enrich vehicles with customer name and format data
+function enriched(){
+  const vehs = getVehicles();
+  return vehs.map((v, idx) => ({
+    _id: v.customer_id || 'vh-' + idx,
+    vehicleId: v.registration_number,
+    customerId: v.customer_id || '',
+    customerName: v.customer_name || 'Unknown',
+    phone: v.phone || '',
+    regNo: v.registration_number || '',
+    nick: v.nickname || '',
+    make: v.make || '',
+    model: v.model || '',
+    year: v.year || '',
+    fuel: v.fuel_type || '',
+    transmission: v.transmission || '',
+    odometer: v.odometer || 0,
+    vin: v.vin || '',
+    status: v.status === 'active' ? 'Active' : (v.status || 'Active'),
+    addedDate: v.added_date || '',
+    createdAt: v.added_date || ''
+  }));
+}
+ 
+const COLORS=['#1a4a6b,#6ab8e8','#1a3d2e,#4cba8a','#3d2a1a,#d4874a','#2a1a3d,#9a7de8','#1a3a3a,#57c7c1'];
+function avatarColors(id){const i=Math.abs((id||'x').split('').reduce((a,c)=>a+c.charCodeAt(0),0))%COLORS.length;return COLORS[i].split(',')}
+function initials(name){const p=name.split(' ');return((p[0]||'?')[0]+(p[1]||'')[0]).toUpperCase()}
+function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):''}
+ 
+function updateStats(data){
+  const custs=[...new Set(data.map(v=>v.customerId||v._id))];
+  document.getElementById('st-total').textContent=data.length;
+  document.getElementById('st-active').textContent=data.filter(v=>v.status==='Active'||!v.status).length;
+  document.getElementById('st-inactive').textContent=data.filter(v=>v.status==='Inactive').length;
+  document.getElementById('st-custs').textContent=custs.filter(c=>c).length;
+}
+ 
+function applyFilters(){
+  // Fetch fresh vehicles from API
+  fetch('/api/vehicles/list/', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrftoken || ''
+    }
+  })
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.status==='success'){
+        // Update djangoVehicles with fresh data
+        window.djangoVehicles = data.vehicles;
+        performFilter();
+      } else {
+        console.error('Failed to fetch vehicles:', data.message);
+        performFilter();
+      }
+    })
+    .catch(e=>{
+      console.error('Error fetching vehicles:', e);
+      performFilter();
+    });
+}
+
+function performFilter(){
+  const q=(document.getElementById('searchInput').value||'').toLowerCase();
+  const fuel=document.getElementById('filterFuel').value;
+  const tx=document.getElementById('filterTx').value;
+  const status=document.getElementById('filterStatus').value;
+  const all=enriched();
+  filtered=all.filter(v=>{
+    const match=(v.regNo||'').toLowerCase().includes(q)||
+      (v.customerName||'').toLowerCase().includes(q)||
+      (v.make||'').toLowerCase().includes(q)||
+      (v.model||'').toLowerCase().includes(q);
+    const fuelOk=!fuel||(v.fuel||'').toLowerCase()===fuel.toLowerCase();
+    const txOk=!tx||(v.transmission||'').toLowerCase()===tx.toLowerCase();
+    const stOk=!status||v.status===status;
+    return match&&fuelOk&&txOk&&stOk;
+  });
+  currentPage=1;
+  updateStats(all);
+  render();
+}
+ 
+function render(){
+  const tbody=document.getElementById('tableBody');
+  const start=(currentPage-1)*PER, end=start+PER;
+  const page=filtered.slice(start,end);
+ 
+  if(!filtered.length){
+    const all=enriched();
+    if(!all.length){
+      tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="empty-icon">🚗</div><p>No vehicles registered yet.</p><p class="empty-hint">Add customers and vehicles using the Customer Management page first.</p></div></td></tr>`;
+    } else {
+      tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="empty-icon">🔍</div><p>No vehicles match your filters.</p><p class="empty-hint">Try adjusting your search or filter criteria.</p></div></td></tr>`;
+    }
+    renderPag();
+    return;
+  }
+ 
+  tbody.innerHTML=page.map((v,i)=>{
+    const [bg,fg]=avatarColors(v._id);
+    const statusCls=v.status==='Inactive'?'inactive':'active';
+    const sdotCls=v.status==='Inactive'?'i':'a';
+    const fuelLabel=cap(v.fuel)||'—';
+    const txLabel=cap(v.transmission)||'—';
+    const model=[v.make,v.model,v.year].filter(Boolean).join(' ')||'—';
+    const shortId='VH-'+(v._id||'').slice(-4).toUpperCase();
+    return `<tr>
+      <td class="td-id">${shortId}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:${bg};color:${fg};display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:700;flex-shrink:0">${initials(v.customerName)}</div>
+          <span class="td-name" style="overflow:hidden;text-overflow:ellipsis">${v.customerName}</span>
+        </div>
+      </td>
+      <td><span class="type-pill">🚗 Car</span></td>
+      <td><span class="plate">${v.regNo||'—'}</span></td>
+      <td style="color:#c8e8ea">${model}</td>
+      <td>${v.fuel?`<span class="fuel-pill">${fuelLabel}</span>`:'<span style="color:var(--muted);font-size:0.74rem">—</span>'}</td>
+      <td>${v.transmission?`<span class="tx-pill">${txLabel}</span>`:'<span style="color:var(--muted);font-size:0.74rem">—</span>'}</td>
+      <td><span class="status-pill ${statusCls}"><span class="sdot ${sdotCls}"></span>${v.status||'Active'}</span></td>
+      <td>
+        <div class="act-btns">
+          <div class="ibtn view" onclick="openView('${v._id}')" title="View">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="ibtn edit" onclick="openEdit('${v._id}')" title="Edit">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+          <div class="ibtn del" onclick="openDelete('${v._id}')" title="Delete">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+ 
+  renderPag();
+}
+ 
+function renderPag(){
+  const total=filtered.length, pages=Math.ceil(total/PER);
+  const s=(currentPage-1)*PER+1, e=Math.min(currentPage*PER,total);
+  document.getElementById('pagInfo').textContent=total?`Showing ${s}–${e} of ${total} vehicles`:'No records';
+  const btns=document.getElementById('pagBtns');
+  btns.innerHTML='';
+  if(pages<=1) return;
+  for(let i=1;i<=pages;i++){
+    const b=document.createElement('button');
+    b.className='pag-btn'+(i===currentPage?' on':'');
+    b.textContent=i;
+    b.onclick=()=>{currentPage=i;render();};
+    btns.appendChild(b);
+  }
+}
+ 
+// ── CUSTOMER DROPDOWN ──
+function populateCustomers(selectedId){
+  const sel=document.getElementById('mCustomer');
+  return fetch('/api/customers/list/', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrftoken || ''
+    }
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    sel.innerHTML='<option value="">Select customer…</option>';
+    if(data.status==='success' && data.customers){
+      data.customers.forEach(c=>{
+        const o=document.createElement('option');
+        o.value=c.id;
+        o.textContent=c.name+(c.phone?' ('+c.phone+')':'');
+        sel.appendChild(o);
+      });
+      if(selectedId){
+        sel.value=selectedId;
+      }
+    }
+    return data;
+  })
+  .catch(e=>{
+    console.error('Error fetching customers:', e);
+    sel.innerHTML='<option value="">Select customer…</option>';
+  });
+}
+ 
+// ── TOGGLE BUTTONS ──
+let mFuel='', mTx='';
+function togSel(btn,grp){
+  const map={mfuel:'#mFuelTogs',mtx:'#mTxTogs'};
+  document.querySelectorAll(map[grp]+' .tog').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const raw=btn.textContent.replace(/[^\w\s]/g,'').trim();
+  if(grp==='mfuel') mFuel=raw;
+  if(grp==='mtx') mTx=raw;
+}
+function clearTogs(){
+  document.querySelectorAll('#mFuelTogs .tog,#mTxTogs .tog').forEach(b=>b.classList.remove('on'));
+  mFuel=''; mTx='';
+}
+function setTog(grp, val){
+  const map={mfuel:'#mFuelTogs',mtx:'#mTxTogs'};
+  document.querySelectorAll(map[grp]+' .tog').forEach(b=>{
+    const raw=b.textContent.replace(/[^\w\s]/g,'').trim().toLowerCase();
+    if(raw===val.toLowerCase()){b.classList.add('on');if(grp==='mfuel')mFuel=b.textContent.replace(/[^\w\s]/g,'').trim();if(grp==='mtx')mTx=b.textContent.replace(/[^\w\s]/g,'').trim();}
+  });
+}
+ 
+function gv(id){return(document.getElementById(id)||{}).value||''}
+ 
+// ── ADD ──
+function openAdd(){
+  editing=null;
+  document.getElementById('modalTitle').textContent='Add Vehicle';
+  ['mReg','mNick','mMake','mModel','mYear','mOdo','mVin'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('mStatus').value='Active';
+  clearTogs();
+  populateCustomers(null).then(()=>{
+    document.getElementById('editOverlay').classList.add('show');
+  });
+}
+ 
+// ── EDIT ──
+function openEdit(id){
+  const v=enriched().find(x=>x._id===id);
+  if(!v) return;
+  editing={customerId: id, vehicleId: v.vehicleId};
+  document.getElementById('modalTitle').textContent='Edit Vehicle';
+  document.getElementById('mReg').value=v.regNo||'';
+  document.getElementById('mNick').value=v.nick||'';
+  document.getElementById('mMake').value=v.make||'';
+  document.getElementById('mModel').value=v.model||'';
+  document.getElementById('mYear').value=v.year||'';
+  document.getElementById('mOdo').value=v.odometer||'';
+  document.getElementById('mVin').value=v.vin||'';
+  document.getElementById('mStatus').value=v.status||'Active';
+  clearTogs();
+  if(v.fuel) setTog('mfuel',v.fuel);
+  if(v.transmission) setTog('mtx',v.transmission);
+  
+  // Populate customers and show modal after loading
+  populateCustomers(v.customerId).then(()=>{
+    document.getElementById('editOverlay').classList.add('show');
+  });
+}
+function closeEdit(){document.getElementById('editOverlay').classList.remove('show');}
+ 
+// ── SAVE ──
+function saveVehicle(){
+  const custId=gv('mCustomer');
+  const reg=gv('mReg').trim();
+  if(!custId){showToast('Please select a customer','err');return;}
+  if(!reg){showToast('Registration number is required','err');return;}
+  if(!mFuel){showToast('Please select fuel type','err');return;}
+  if(!mTx){showToast('Please select transmission','err');return;}
+  
+  const data={
+    customerId:custId, regNo:reg, nick:gv('mNick').trim(),
+    make:gv('mMake').trim(), model:gv('mModel').trim(),
+    year:gv('mYear'), odometer:gv('mOdo'),
+    vin:gv('mVin').trim(), fuel:mFuel, transmission:mTx,
+    status:gv('mStatus')
+  };
+  
+  console.log('Saving vehicle:', data);
+  console.log('Editing:', editing);
+  
+  if(editing){
+    // Update existing vehicle
+    console.log(`Calling: /api/vehicle/edit/${editing.customerId}/${editing.vehicleId}/`);
+    fetch(`/api/vehicle/edit/${editing.customerId}/${editing.vehicleId}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken || ''
+      },
+      body: JSON.stringify(data)
+    })
+    .then(r=>{
+      console.log('Response status:', r.status);
+      return r.json();
+    })
+    .then(r=>{
+      console.log('Response data:', r);
+      if(r.status==='success'){
+        showToast('Vehicle updated','ok');
+        closeEdit();
+        applyFilters();
+      } else {
+        showToast(r.message || 'Update failed','err');
+      }
+    })
+    .catch(e=>{
+      console.error('Error:', e);
+      showToast(e.message,'err');
+    });
+  } else {
+    // Add new vehicle
+    console.log('Calling: /api/vehicle/add/');
+    fetch('/api/vehicle/add/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken || ''
+      },
+      body: JSON.stringify(data)
+    })
+    .then(r=>{
+      console.log('Response status:', r.status);
+      return r.json();
+    })
+    .then(r=>{
+      console.log('Response data:', r);
+      if(r.status==='success'){
+        showToast('Vehicle added','ok');
+        closeEdit();
+        applyFilters();
+      } else {
+        showToast(r.message || 'Add failed','err');
+      }
+    })
+    .catch(e=>{
+      console.error('Error:', e);
+      showToast(e.message,'err');
+    });
+  }
+}
+ 
+// ── DELETE ──
+function openDelete(id){
+  const v=enriched().find(x=>x._id===id);
+  if(!v) return;
+  pendingDel={customerId: id, vehicleId: v.vehicleId, regNo: v.regNo, customerName: v.customerName};
+  document.getElementById('delMsg').textContent=`Remove vehicle "${v.regNo||v.make}" (${v.customerName}) permanently.`;
+  document.getElementById('delConfirmBtn').onclick=()=>{
+    fetch(`/api/vehicle/delete/${pendingDel.customerId}/${pendingDel.vehicleId}/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken || ''
+      }
+    })
+    .then(r=>r.json())
+    .then(r=>{
+      if(r.status==='success'){
+        closeDelete();
+        showToast('Vehicle deleted','ok');
+        applyFilters();
+      } else {
+        showToast(r.message || 'Delete failed','err');
+      }
+    })
+    .catch(e=>{showToast(e.message,'err');console.error(e);});
+  };
+  document.getElementById('delOverlay').classList.add('show');
+}
+function closeDelete(){document.getElementById('delOverlay').classList.remove('show');}
+ 
+// ── VIEW ──
+function openView(id){
+  const v=enriched().find(x=>x._id===id);
+  if(!v) return;
+  const [bg,fg]=avatarColors(v._id);
+  const av=document.getElementById('vAvatar');
+  av.style.cssText=`background:${bg};color:${fg};width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;margin-right:14px;flex-shrink:0`;
+  av.textContent=initials(v.customerName);
+  document.getElementById('vName').textContent=v.regNo||'Vehicle';
+  document.getElementById('vMeta').textContent=v.customerName+(v.nick?' — '+v.nick:'');
+  document.getElementById('vGrid').innerHTML=[
+    ['Customer',v.customerName],
+    ['Reg. No.',v.regNo||'—'],
+    ['Make',v.make||'—'],
+    ['Model',v.model||'—'],
+    ['Year',v.year||'—'],
+    ['Fuel',cap(v.fuel)||'—'],
+    ['Transmission',cap(v.transmission)||'—'],
+    ['Odometer',v.odometer?parseInt(v.odometer).toLocaleString()+' km':'—'],
+    ['VIN',v.vin||'—'],
+    ['Status',v.status||'Active'],
+    ['Nickname',v.nick||'—'],
+    ['Added',v.createdAt?new Date(v.createdAt).toLocaleDateString('en-IN'):'—'],
+  ].map(([l,val])=>`<div class="view-cell"><div class="vl">${l}</div><div class="vv">${val}</div></div>`).join('');
+  document.getElementById('viewOverlay').classList.add('show');
+}
+function closeView(){document.getElementById('viewOverlay').classList.remove('show');}
+ 
+// ── CSV EXPORT ──
+function exportCSV(){
+  const rows=[['Vehicle ID','Customer','Reg. No.','Make','Model','Year','Fuel','Transmission','Odometer','Status']];
+  filtered.forEach(v=>{
+    rows.push([
+      'VH-'+(v._id||'').slice(-4).toUpperCase(),
+      v.customerName, v.regNo||'', v.make||'', v.model||'',
+      v.year||'', v.fuel||'', v.transmission||'',
+      v.odometer||'', v.status||'Active'
+    ]);
+  });
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='garage_buddy_vehicles.csv';
+  a.click();
+  showToast('CSV exported','ok');
+}
+ 
+// ── TOAST ──
+let tt;
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  document.getElementById('tic').textContent=type==='err'?'✕':'✓';
+  document.getElementById('tmsg').textContent=msg;
+  t.className='toast'+(type==='err'?' err':'');
+  t.classList.add('show');
+  clearTimeout(tt);
+  tt=setTimeout(()=>t.classList.remove('show'),2800);
+}
+ 
+// Close overlays on outside click
+['editOverlay','delOverlay','viewOverlay'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){
+    if(e.target===this) this.classList.remove('show');
+  });
+});
+ 
+// INIT
+applyFilters();
+function goToDashboard() {
+  window.location.href = "/dashboard/"; // change if your route is different
+}
+</script>
+</body>
+</html>

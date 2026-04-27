@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garage Buddy Dashboard</title>
+    <link rel="preconnect" href="https://api.fontshare.com">
+    <link href="https://api.fontshare.com/v2/css?family=Satoshi:400,500,700&display=swap" rel="stylesheet">
+    <style>
+        :root, [data-theme="light"] {
+            --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+            --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+            --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+            --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+            --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --color-bg: #0f0f10;
+            --color-surface: #17181b;
+            --color-surface-2: #1d1f23;
+            --color-surface-offset: #24262b;
+            --color-border: #2e3138;
+            --color-text: #f2f4f7;
+            --color-text-muted: #a7adb8;
+            --color-text-faint: #717785;
+            --color-text-inverse: #0f0f10;
+            --color-primary: #14b8b1;
+            --color-primary-hover: #0f9490;
+            --color-primary-soft: rgba(20,184,177,.14);
+            --color-success: #4ade80;
+            --color-warning: #f59e0b;
+            --color-blue: #60a5fa;
+            --color-danger: #f87171;
+            --radius-sm: 0.5rem;
+            --radius-md: 0.85rem;
+            --radius-lg: 1.15rem;
+            --radius-xl: 1.5rem;
+            --radius-full: 9999px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,.24), 0 10px 24px rgba(0,0,0,.18);
+            --shadow-md: 0 12px 30px rgba(0,0,0,.28), 0 24px 50px rgba(0,0,0,.22);
+            --transition: 220ms cubic-bezier(.16,1,.3,1);
+            --sidebar-w: 280px;
+            --sidebar-collapsed: 92px;
+            --font-body: 'Satoshi', Inter, system-ui, sans-serif;
+        }
+
+        [data-theme="light"] {
+            --color-bg: #f7f6f2;
+            --color-surface: #f9f8f5;
+            --color-surface-2: #fbfbf9;
+            --color-surface-offset: #edeae5;
+            --color-border: #d4d1ca;
+            --color-text: #28251d;
+            --color-text-muted: #6f6d67;
+            --color-text-faint: #9f9c95;
+            --color-text-inverse: #f9f8f4;
+            --color-primary: #01696f;
+            --color-primary-hover: #0c4e54;
+            --color-primary-soft: #dbe9e8;
+            --color-success: #437a22;
+            --color-warning: #da7101;
+            --color-blue: #006494;
+            --color-danger: #a13544;
+            --shadow-sm: 0 1px 2px rgba(30,26,16,.06), 0 10px 24px rgba(30,26,16,.04);
+            --shadow-md: 0 8px 24px rgba(30,26,16,.09), 0 20px 44px rgba(30,26,16,.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; overflow: hidden; }
+        body {
+            font-family: var(--font-body);
+            font-size: var(--text-base);
+            background: radial-gradient(circle at top right, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 28%),
+                        linear-gradient(180deg, var(--color-bg), color-mix(in srgb, var(--color-bg) 78%, #ffffff 22%));
+            color: var(--color-text);
+            line-height: 1.5;
+        }
+        button, input { font: inherit; }
+        button { border: 0; background: none; cursor: pointer; }
+        a { text-decoration: none; color: inherit; }
+
+        .app {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: 78px 1fr;
+            height: 100dvh;
+            position: relative;
+            isolation: isolate;
+        }
+
+        .sidebar {
+            grid-row: 1 / -1;
+            width: var(--sidebar-w);
+            background: color-mix(in srgb, var(--color-surface) 78%, #000 0%);
+            border-right: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+            padding: var(--space-5);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+            box-shadow: var(--shadow-sm);
+            z-index: 20;
+            transition: width var(--transition), transform var(--transition), background var(--transition);
+            overflow: hidden;
+        }
+        .sidebar.collapsed { width: var(--sidebar-collapsed); }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            min-height: 54px;
+        }
+        .logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--color-primary), color-mix(in srgb, var(--color-primary) 65%, white));
+            color: white;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+            flex-shrink: 0;
+        }
+        .brand-copy h1 { font-size: var(--text-lg); line-height: 1.05; }
+        .brand-copy p { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 3px; }
+
+        .sidebar.collapsed .brand-copy,
+        .sidebar.collapsed .nav-text,
+        .sidebar.collapsed .nav-meta,
+        .sidebar.collapsed .upgrade,
+        .sidebar.collapsed .section-label { display: none; }
+
+        .section-label {
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--color-text-faint);
+            margin: var(--space-2) 0 var(--space-1);
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+        .nav-link {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 22px 1fr auto;
+            align-items: center;
+            gap: var(--space-3);
+            min-height: 48px;
+            padding: 0 var(--space-4);
+            border-radius: var(--radius-lg);
+            color: var(--color-text-muted);
+            text-align: left;
+            transition: all var(--transition);
+        }
+        .nav-link:hover {
+            background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface-offset));
+            color: var(--color-text);
+        }
+        .nav-link.active {
+            background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 14%, var(--color-surface-2)), color-mix(in srgb, var(--color-primary) 8%, var(--color-surface)));
+            color: var(--color-text);
+            box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 18%, transparent);
+        }
+        .nav-link .icon { font-size: 1.1rem; text-align: center; }
+        .nav-meta {
+            font-size: var(--text-xs);
+            color: var(--color-primary);
+            background: var(--color-primary-soft);
+            padding: .2rem .55rem;
+            border-radius: var(--radius-full);
+        }
+
+        .topbar {
+            grid-column: 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-4) var(--space-6);
+            border-bottom: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+            background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+            backdrop-filter: blur(18px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .topbar-left, .topbar-right { display: flex; align-items: center; gap: var(--space-3); }
+
+        .icon-btn,
+        .search-container,
+        .stat-card,
+        .panel,
+        .news-item,
+        .chat-box,
+        .message-input {
+            border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+        }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: var(--color-surface-2);
+            color: var(--color-text);
+        }
+        .icon-btn:hover { background: var(--color-surface-offset); }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            min-width: min(420px, 42vw);
+            padding: 0 .95rem;
+            height: 46px;
+            border-radius: 14px;
+            background: var(--color-surface-2);
+        }
+        .search-container input {
+            border: 0;
+            outline: 0;
+            background: transparent;
+            width: 100%;
+            color: var(--color-text);
+        }
+
+        .greeting {
+            font-size: var(--text-base);
+            font-weight: 500;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #f0c48b, #c07a52);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .main {
+            grid-column: 2;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding: var(--space-6);
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-6);
+            align-items: center;
+            margin-bottom: var(--space-6);
+            background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 9%, var(--color-surface)), var(--color-surface-2));
+            border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+            border-radius: 28px;
+            padding: var(--space-6);
+            box-shadow: var(--shadow-sm);
+        }
+        .hero h2 { font-size: var(--text-xl); margin-bottom: .45rem; }
+        .hero p { color: var(--color-text-muted); max-width: 60ch; }
+
+        .overview {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .stat-card {
+            background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+            border-radius: 24px;
+            padding: var(--space-5);
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        .stat-label { font-size: var(--text-sm); color: var(--color-text-muted); }
+        .stat-value {
+            font-size: clamp(1.6rem, 1.3rem + 1.4vw, 2.4rem);
+            font-weight: 700;
+            margin: .6rem 0 .35rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .delta {
+            font-size: var(--text-xs);
+            color: var(--color-success);
+            background: color-mix(in srgb, var(--color-success) 12%, transparent);
+            display: inline-flex;
+            padding: .35rem .55rem;
+            border-radius: var(--radius-full);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.7fr) minmax(340px, .95fr);
+            gap: 1.25rem;
+            align-items: start;
+            margin-top: 1.25rem;
+        }
+
+        .dashboard-left,
+        .dashboard-right {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .panel {
+            background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+            border-radius: 24px;
+            padding: var(--space-5);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+        }
+
+        .feature-panel {
+            padding: 1rem;
+        }
+
+        .feature-visual {
+            height: 260px;
+            border-radius: 24px;
+            background:
+                radial-gradient(circle at 50% 85%, rgba(20,184,177,.35), transparent 28%),
+                linear-gradient(180deg, #0f1218 0%, #0b0d12 100%);
+            border: 1px solid rgba(255,255,255,.06);
+            display: grid;
+            place-items: center;
+            color: rgba(255,255,255,.8);
+            font-size: 1rem;
+            overflow: hidden;
+        }
+
+        .status-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .status-item {
+            background: linear-gradient(180deg,
+                color-mix(in srgb, var(--color-surface) 96%, transparent),
+                color-mix(in srgb, var(--color-surface-2) 92%, transparent));
+            border-radius: 18px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+        }
+
+        .status-item strong {
+            display: block;
+            font-size: 1.6rem;
+            margin-bottom: .25rem;
+            color: var(--color-text);
+        }
+
+        .calendar-card {
+            background: linear-gradient(180deg,
+                color-mix(in srgb, var(--color-surface) 95%, transparent),
+                color-mix(in srgb, var(--color-surface-2) 90%, transparent));
+            border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+            border-radius: 26px;
+            padding: 1rem;
+            box-shadow: var(--shadow-md);
+            width: 100%;
+        }
+
+        .calendar-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: .75rem;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-top strong {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .calendar-top span {
+            color: var(--color-text-muted);
+            font-size: .92rem;
+            white-space: nowrap;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: .45rem;
+        }
+
+        .calendar-header {
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: color-mix(in srgb, var(--color-primary) 18%, var(--color-surface-2));
+            color: var(--color-primary);
+            font-size: .82rem;
+            font-weight: 600;
+        }
+
+        .calendar-day {
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            font-size: .92rem;
+            transition: .2s ease;
+            color: var(--color-text);
+        }
+
+        .calendar-day:hover {
+            background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+        }
+
+        .calendar-day.today {
+            background: var(--color-primary);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 8px 18px rgba(20,184,177,.25);
+        }
+
+        .calendar-day.other-month {
+            color: var(--color-text-faint);
+        }
+
+        .compact-panel {
+            padding: 1rem;
+        }
+
+        .mini-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .mini-card {
+            background: var(--color-surface-2);
+            border-radius: 18px;
+            padding: 1rem;
+            border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+        }
+
+        .mini-card h3 {
+            font-size: .88rem;
+            color: var(--color-text-muted);
+            margin-bottom: .35rem;
+        }
+
+        .mini-card .big {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .status-row {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 820px) {
+            .status-row,
+            .mini-row { grid-template-columns: 1fr; }
+        }
+
+        .content-section { display: none; animation: fade .28s ease; }
+        .content-section.active { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .mobile-only { display: none; }
+
+        @media (max-width: 820px) {
+            .app { grid-template-columns: 1fr; grid-template-rows: 72px 1fr; }
+            .topbar { grid-column: 1; padding: var(--space-4); }
+            .main { grid-column: 1; padding: var(--space-4); }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+                width: min(86vw, 320px);
+            }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .mobile-only { display: inline-grid; }
+            .search-container { min-width: 0; width: 100%; }
+            .topbar-right .search-container { display: none; }
+        }
+
+        #searchResults {
+            position: absolute !important;
+            top: calc(100% + 8px) !important;
+            right: 0 !important;
+            background: var(--color-surface) !important;
+            border: 1px solid var(--color-border) !important;
+            border-radius: 12px !important;
+            width: 400px !important;
+            max-height: 400px !important;
+            overflow-y: auto !important;
+            z-index: 1000 !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,.3) !important;
+        }
+
+        #searchResults div {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--color-border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        #searchResults div:hover {
+            background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="logo" style="background-image: url('https://static.vecteezy.com/system/resources/previews/054/553/620/non_2x/automotive-garage-logo-design-template-vector.jpg'); background-size: cover; background-position: center;"></div>
+                <div class="brand-copy">
+                    <h1>Garage Buddy</h1>
+                    <p>Garage Management System</p>
+                </div>
+            </div>
+            <div class="section-label">Menu</div>
+            <ul class="nav-list">
+                <li><a href="/dashboard/" class="nav-link"><span class="icon"></span><span class="nav-text">Dashboard</span></a></li>
+                <li><a href="/profile/" class="nav-link"><span class="icon"></span><span class="nav-text">Profile</span></a></li>
+                <li><a href="/customer/" class="nav-link"><span class="icon"></span><span class="nav-text">Customer</span></a></li>
+                <li><a href="/vehicle/" class="nav-link"><span class="icon"></span><span class="nav-text">Vehicle</span></a></li>
+                <li><a href="/bill/" class="nav-link"><span class="icon"></span><span class="nav-text">Bill</span></a></li>
+                <li><a href="/service/" class="nav-link"><span class="icon"></span><span class="nav-text">Services</span></a></li>
+            </ul>
+        </aside>
+
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="icon-btn mobile-only" id="mobileMenuBtn" aria-label="Open sidebar">☰</button>
+                <button class="icon-btn" id="toggleSidebar" aria-label="Toggle sidebar">☰</button>
+                <div style="font-size: var(--text-xs); color: var(--color-text-faint); text-transform: uppercase; letter-spacing: .12em;">Garage Dashboard</div>
+                <div style="font-size: var(--text-sm); color: var(--color-text-muted);">April 2026</div>
+            </div>
+            <div class="topbar-right">
+                <div class="search-container" tabindex="0">
+                    <span>🔍</span>
+                    <input type="text" placeholder="Search by Vehicle Number..." id="vehicleSearchInput">
+                    <div id="searchResults" style="display: none;"></div>
+                </div>
+                <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+                
+                <div class="greeting">Hi</div>
+            </div>
+        </header>
+
+        <main class="main">
+            <section id="dashboard" class="content-section active">
+                <div class="hero">
+                    <div>
+                        <div class="hero-badge"><span>🏪</span> Garage Buddy Dashboard</div>
+                        <h2>Welcome back to your garage!</h2>
+                        <p>Monitor customers, vehicles, services, and revenue at a glance. All data updated for April 2026.</p>
+                    </div>
+                </div>
+
+                <section class="overview">
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Total Customers</span>
+                            <span>👥</span>
+                        </div>
+                        <div class="stat-value">1,247</div>
+                        <span class="delta">+12 this month</span>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Total Vehicles</span>
+                            <span>🚗</span>
+                        </div>
+                        <div class="stat-value">892</div>
+                        <span class="delta">+8%</span>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Services this Month</span>
+                            <span>🔧</span>
+                        </div>
+                        <div class="stat-value">156</div>
+                        <span class="delta">+24</span>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Revenue Summary</span>
+                            <span>💰</span>
+                        </div>
+                        <div class="stat-value">₹4,52,300</div>
+                        <span class="delta">+15% growth</span>
+                    </article>
+                </section>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-left">
+                        <section class="panel feature-panel">
+                            <div class="feature-visual" style="display:block; padding:1rem; overflow:auto;">
+    <table style="width:100%; border-collapse: collapse; color: var(--color-text);">
+        <thead>
+            <tr style="background: var(--color-primary-soft);">
+                <th style="padding:10px; border:1px solid var(--color-border);">S.No</th>
+                <th style="padding:10px; border:1px solid var(--color-border);">Customer Name</th>
+                <th style="padding:10px; border:1px solid var(--color-border);">vehical number</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding:10px; border:1px solid var(--color-border);">1</td>
+                <td style="padding:10px; border:1px solid var(--color-border);">Rahul Sharma</td>
+                <td style="padding:10px; border:1px solid var(--color-border);">MH12AB1234</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid var(--color-border);">2</td>
+                <td style="padding:10px; border:1px solid var(--color-border);">Priya Singh</td>
+                <td style="padding:10px; border:1px solid var(--color-border);">DL05CD5678</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid var(--color-border);">3</td>
+                <td style="padding:10px; border:1px solid var(--color-border);">Amit Verma</td>
+                <td style="padding:10px; border:1px solid var(--color-border);">KA03EF9012</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid var(--color-border);">4</td>
+                <td style="padding:10px; border:1px solid var(--color-border);">Sneha Patel</td>
+                <td style="padding:10px; border:1px solid var(--color-border);">GJ01GH3456</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+                        </section>
+
+                        <section class="panel">
+                            <div class="status-row">
+                                <div class="status-item">
+                                    <strong>174</strong>
+                                    <span>Cars Online</span>
+                                </div>
+                                <div class="status-item">
+                                    <strong>39</strong>
+                                    <span>On Order</span>
+                                </div>
+                                <div class="status-item">
+                                    <strong>12</strong>
+                                    <span>Awaiting</span>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="dashboard-right">
+                        <article class="calendar-card">
+                            <div class="calendar-top">
+                                <strong> Calendar</strong>
+                                <span>April 2026</span>
+                            </div>
+                            <div class="calendar-grid" id="calendar"></div>
+                        </article>
+
+                        <section class="panel compact-panel">
+                            <div class="mini-row">
+                                <div class="mini-card">
+                                    <h3>Total Expense</h3>
+                                    <div class="big">₹9,748.84</div>
+                                </div>
+                                <div class="mini-card">
+                                    <h3>Total Profit</h3>
+                                    <div class="big">₹31,748.84</div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <section id="customers" class="content-section">
+                    <div class="hero"><h2>Customers</h2><p>Manage customer profiles here.</p></div>
+                </section>
+                <section id="vehicles" class="content-section">
+                    <div class="hero"><h2>Vehicles</h2><p>Track all registered vehicles.</p></div>
+                </section>
+                <section id="billing" class="content-section">
+                    <div class="hero"><h2>Billing</h2><p>View invoices and payments.</p></div>
+                </section>
+                <section id="services" class="content-section">
+                    <div class="hero"><h2>Services</h2><p>Service history and scheduling.</p></div>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const toggleSidebarBtn = document.getElementById('toggleSidebar');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const overlay = document.getElementById('overlay');
+        const themeToggle = document.getElementById('themeToggle');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.content-section');
+        const root = document.documentElement;
+        const searchContainer = document.querySelector('.search-container');
+        const searchInput = document.getElementById('vehicleSearchInput');
+        const searchResults = document.getElementById('searchResults');
+
+        function closeMobileSidebar() {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('show');
+        }
+
+        function openMobileSidebar() {
+            sidebar.classList.add('mobile-open');
+            overlay.classList.add('show');
+        }
+
+        // Enhanced search functionality for services
+        searchInput.addEventListener('input', async (e) => {
+            const query = e.target.value.trim().toUpperCase();
+            
+            if (query.length < 3) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/services/search/?q=${encodeURIComponent(query)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.data || data.data.length === 0) {
+                    searchResults.innerHTML = `
+                        <div style="padding: 16px; color: var(--color-text-muted); text-align: center;">
+                            <div style="font-size: 1.2rem; margin-bottom: 8px;">🔍</div>
+                            <div>No service records found for <strong>${query}</strong></div>
+                        </div>
+                    `;
+                    searchResults.style.display = 'block';
+                    return;
+                }
+
+                // Build results HTML
+                let resultsHTML = '';
+                data.data.forEach((service) => {
+                    const serviceDate = service.service_date ? new Date(service.service_date).toLocaleDateString('en-IN') : 'N/A';
+                    const itemCount = service.items ? service.items.length : 0;
+                    
+                    resultsHTML += `
+                        <div style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); cursor: pointer;" onclick="viewServiceDetail('${service._id}')">
+                            <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 4px;">
+                                ${service.vehicle_number || 'N/A'}
+                            </div>
+                            <div style="font-size: 0.9rem; color: var(--color-text); margin-bottom: 4px;">
+                                👤 ${service.customer_name || 'Unknown'} | 🔧 ${service.mechanic_name || 'Unknown'}
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--color-text-muted);">
+                                📅 ${serviceDate} | 📋 ${itemCount} item(s)
+                            </div>
+                        </div>
+                    `;
+                });
+
+                searchResults.innerHTML = resultsHTML;
+                searchResults.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                searchResults.innerHTML = `
+                    <div style="padding: 16px; color: var(--color-danger); text-align: center;">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+                searchResults.style.display = 'block';
+            }
+        });
+
+        // Function to view service details
+        function viewServiceDetail(serviceId) {
+            console.log(`📖 Opening service detail: ${serviceId}`);
+            window.location.href = `/search/${serviceId}/`;
+        }
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchContainer.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        function showSection(sectionId) {
+            sections.forEach(section => section.classList.remove('active'));
+            const target = document.getElementById(sectionId);
+            if (target) target.classList.add('active');
+            navLinks.forEach(link => link.classList.toggle('active', link.dataset.section === sectionId));
+            if (window.innerWidth < 820) closeMobileSidebar();
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', e => {
+                if (link.dataset.section) {
+                    e.preventDefault();
+                    showSection(link.dataset.section);
+                }
+            });
+        });
+
+        toggleSidebarBtn.addEventListener('click', () => {
+            if (window.innerWidth < 820) {
+                sidebar.classList.contains('mobile-open') ? closeMobileSidebar() : openMobileSidebar();
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
+        });
+
+        mobileMenuBtn.addEventListener('click', openMobileSidebar);
+        overlay.addEventListener('click', closeMobileSidebar);
+
+        themeToggle.addEventListener('click', () => {
+            const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+
+        function generateCalendar() {
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth();
+            const todayDate = today.getDate();
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+            days.forEach(day => {
+                const div = document.createElement('div');
+                div.className = 'calendar-header';
+                div.textContent = day;
+                calendar.appendChild(div);
+            });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) {
+                const div = document.createElement('div');
+                div.className = 'calendar-day other-month';
+                calendar.appendChild(div);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const div = document.createElement('div');
+                div.className = `calendar-day ${day === todayDate ? 'today' : ''}`;
+                div.textContent = day;
+                calendar.appendChild(div);
+            }
+
+            while (calendar.children.length < 42) {
+                const div = document.createElement('div');
+                div.className = 'calendar-day other-month';
+                calendar.appendChild(div);
+            }
+
+            // Update calendar header with current month and year
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const calendarTopSpan = document.querySelector('.calendar-top span');
+            if (calendarTopSpan) {
+                calendarTopSpan.textContent = `${monthNames[month]} ${year}`;
+            }
+        }
+
+        generateCalendar();
+
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            root.setAttribute('data-theme', 'dark');
+            themeToggle.textContent = '☀️';
+        }
+    </script>
+</body>
+</html>

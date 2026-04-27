@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add New Customer | Garage Buddy Billing</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    body {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at top, rgba(87,199,193,0.07) 0%, transparent 40%),
+                  linear-gradient(180deg, #0a1013 0%, #0b1215 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center; 
+      justify-content: flex-start;
+      padding: 20px;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: #e8f1f2;
+    }
+ 
+    /* ── TOP NAV ── */
+    .topbar {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 8px 16px 8px 10px;
+    }
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg,rgba(87,199,193,0.25),rgba(87,199,193,0.08));
+      border: 1px solid rgba(87,199,193,0.3);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .brand-icon img { width: 40px; height: 40px; border-radius: 8px; object-fit: contain; display: block; }
+    .brand-text .hi { font-size: 0.95rem; font-weight: 700; color: #57c7c1; }
+    .brand-text .sub { font-size: 0.75rem; color: #7a9298; }
+    .search-bar { display: flex; align-items: center; gap: 8px; }
+    .search-input-wrap { position: relative; }
+    .search-input-wrap svg { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; stroke: #7a9298; fill: none; stroke-width: 2; }
+    .search-input-wrap input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      color: #e8f1f2;
+      font-size: 0.82rem;
+      padding: 9px 36px 9px 14px;
+      outline: none;
+      width: 260px;
+      font-family: inherit;
+    }
+    .search-input-wrap input::placeholder { color: #4a6268; }
+    .search-btn {
+      width: 38px; height: 38px;
+      background: rgba(87,199,193,0.12);
+      border: 1px solid rgba(87,199,193,0.22);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .search-btn svg { width: 16px; height: 16px; stroke: #57c7c1; fill: none; stroke-width: 2; }
+ 
+    /* ── MAIN CARD ── */
+    .card {
+      width: 100%;
+      max-width: 900px;
+      max-height: 85vh;
+      background: linear-gradient(160deg, #111f24 0%, #0d1a1e 50%, #0f1e22 100%);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%; transform: translateX(-50%);
+      width: 500px; height: 160px;
+      background: radial-gradient(ellipse, rgba(87,199,193,0.09) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+ 
+    .card-header {
+      padding: 18px 24px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+      position: relative; z-index: 1;
+    }
+    .card-header h1 { font-size: 1.35rem; font-weight: 700; color: #f0fbfc; letter-spacing: -0.02em; }
+
+    /* ── BACK TO DASHBOARD BUTTON ── */
+    .btn-back-dash {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: rgba(87,199,193,0.1);
+      border: 1px solid rgba(87,199,193,0.25);
+      color: #57c7c1;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .btn-back-dash:hover {
+      background: rgba(87,199,193,0.18);
+      border-color: rgba(87,199,193,0.4);
+      transform: translateX(-2px);
+    }
+    .btn-back-dash svg {
+      width: 14px;
+      height: 14px;
+      stroke: #57c7c1;
+      fill: none;
+      stroke-width: 2.5;
+    }
+    .btn-back-dash.hidden { display: none; }
+ 
+    .progress-bar { height: 3px; background: rgba(255,255,255,0.04); flex-shrink: 0; position: relative; z-index:1; }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3da8a2, #57c7c1, #7de8e3);
+      border-radius: 0 2px 2px 0;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .steps-nav {
+      display: flex;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      flex-shrink: 0;
+      position: relative; z-index: 1;
+    }
+    .step-tab {
+      flex: 1; padding: 11px 8px; text-align: center;
+      font-size: 0.75rem; font-weight: 600; color: #7a9298;
+      cursor: pointer; border-bottom: 2px solid transparent;
+      transition: all 0.22s;
+      background: transparent; border-top: none; border-left: none; border-right: none;
+      font-family: inherit;
+    }
+    .step-tab.active { color: #57c7c1; border-bottom-color: #57c7c1; background: rgba(87,199,193,0.04); }
+    .step-tab.done { color: #57c7c1; }
+ 
+    .card-body {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 20px 24px;
+      position: relative;
+      z-index: 1;
+      min-height: 0;
+    }
+    .card-body::-webkit-scrollbar { width: 6px; }
+    .card-body::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 3px; }
+    .card-body::-webkit-scrollbar-thumb { background: rgba(87,199,193,0.3); border-radius: 3px; }
+    .card-body::-webkit-scrollbar-thumb:hover { background: rgba(87,199,193,0.5); }
+ 
+    .step-panel { display: none; }
+    .step-panel.active { display: block; animation: fadeUp 0.28s ease both; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:translateY(0); } }
+ 
+    .sec-label {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.8rem; font-weight: 700; color: #57c7c1;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 14px;
+    }
+    .sec-label::before {
+      content: ''; display: block;
+      width: 3px; height: 13px;
+      background: linear-gradient(180deg, #57c7c1, #3da8a2);
+      border-radius: 2px;
+    }
+ 
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .mb12 { margin-bottom: 12px; }
+    .mb16 { margin-bottom: 16px; }
+ 
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 0.76rem; font-weight: 600; color: #8fa8ae; }
+    .req { color: #57c7c1; }
+    .field input, .field select, .field textarea {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      color: #dff5f6;
+      font-size: 0.85rem;
+      padding: 9px 12px;
+      outline: none;
+      font-family: inherit;
+      width: 100%;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .field select option { background: #0d1e22; }
+    .field input::placeholder, .field textarea::placeholder { color: #3a5558; }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: rgba(87,199,193,0.45);
+      background: rgba(87,199,193,0.04);
+      box-shadow: 0 0 0 3px rgba(87,199,193,0.07);
+    }
+    .field input:hover:not(:focus), .field select:hover:not(:focus) { border-color: rgba(255,255,255,0.14); }
+    .field textarea { resize: vertical; min-height: 64px; }
+ 
+    /* ── TOGGLE PILLS ── */
+    .tog-row { display: flex; gap: 7px; flex-wrap: wrap; }
+    .tog {
+      padding: 6px 13px;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+      color: #7a9298; 
+      font-size: 0.78rem; 
+      font-weight: 600;
+      cursor: pointer; 
+      transition: all 0.18s; 
+      font-family: inherit;
+    }
+    .tog:hover { border-color: rgba(87,199,193,0.28); color: #a8e8e4; }
+    .tog.on { border-color: #57c7c1; background: rgba(87,199,193,0.13); color: #57c7c1; }
+ 
+    /* ── BOTTOM PANEL (kept for Step 3) ── */
+    .bottom-panel {
+      display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 12px;
+      margin-top: 14px;
+    }
+    .notes-box {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; overflow: hidden;
+    }
+    .notes-box .nb-title { padding: 10px 14px; font-size: 0.88rem; font-weight: 700; color: #dff5f6; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .note-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.8rem; }
+    .note-row:last-child { border-bottom: none; }
+    .note-row .nk { color: #7a9298; }
+    .note-row .nv { font-weight: 700; color: #dff5f6; }
+    .action-box {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 14px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .action-box .ab-title { font-size: 0.88rem; font-weight: 700; color: #dff5f6; margin-bottom: 2px; }
+    .action-box .ab-sub { font-size: 0.74rem; color: #7a9298; line-height: 1.4; }
+ 
+    /* ── BUTTONS ── */
+    .btn-row { display: flex; gap: 9px; margin-top: 18px; justify-content: flex-end; }
+    .btn-secondary {
+      padding: 10px 20px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+      color: #8fa8ae; font-size: 0.84rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.07); color: #c4d8dc; }
+    .btn-primary {
+      padding: 10px 24px; border-radius: 10px;
+      background: linear-gradient(135deg, #57c7c1, #3da8a2);
+      border: none; color: #04221f;
+      font-size: 0.88rem; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.22s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(87,199,193,0.25); }
+    .btn-primary svg { width: 14px; height: 14px; stroke: #04221f; fill: none; stroke-width: 2.5; }
+    .btn-generate {
+      width: 100%; padding: 11px;
+      background: linear-gradient(135deg, #57c7c1, #3da8a2);
+      border: none; border-radius: 10px;
+      color: #04221f; font-size: 0.88rem; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: all 0.22s;
+    }
+    .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(87,199,193,0.25); }
+ 
+    .odo-wrap { position: relative; }
+    .odo-unit { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: #7a9298; font-weight: 600; pointer-events: none; }
+
+    /* DJANGO MESSAGES */
+    .django-messages { position: fixed; top: 20px; right: 20px; z-index: 1001; max-width: 450px; }
+    .message { padding: 14px 18px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 600; font-size: 0.95rem; animation: slideInMsg 0.3s ease-out; }
+    @keyframes slideInMsg { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .message-success { background: rgba(87, 199, 193, 0.15); border: 1px solid rgba(87, 199, 193, 0.3); color: #57c7c1; }
+    .message-error { background: rgba(255, 107, 102, 0.15); border: 1px solid rgba(255, 107, 102, 0.3); color: #ff6b66; }
+    .message-warning { background: rgba(246, 198, 111, 0.15); border: 1px solid rgba(246, 198, 111, 0.3); color: #f6c66f; }
+    .message button { background: none; border: none; color: inherit; cursor: pointer; font-size: 1.2rem; padding: 0; line-height: 1; }
+
+    .check-row { 
+      display: flex; align-items: flex-start; gap: 9px; 
+      padding: 10px 12px; 
+      background: rgba(255,255,255,0.02); 
+      border: 1px solid rgba(255,255,255,0.05); 
+      border-radius: 9px; margin-bottom: 12px; 
+    }
+    .check-row input[type=checkbox] { width: 15px; height: 15px; margin-top: 3px; accent-color: #57c7c1; flex-shrink: 0; cursor: pointer; }
+    .check-row label { font-size: 0.78rem; color: #8fa8ae; line-height: 1.5; cursor: pointer; }
+
+    @media (max-width: 768px) {
+      .card { max-height: 90vh; }
+      .g3 { grid-template-columns: 1fr; }
+      .g2 { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; gap: 12px; }
+      .search-bar { width: 100%; }
+      .search-input-wrap input { width: 100%; }
+      .bottom-panel { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  {% if messages %}
+    <div class="django-messages">
+      {% for message in messages %}
+        <div class="message message-{{ message.tags }}" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- TOP NAV -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon">
+        <img src="https://static.vecteezy.com/system/resources/previews/054/553/620/non_2x/automotive-garage-logo-design-template-vector.jpg" alt="Garage Buddy Logo"/>
+      </div>
+      <div class="brand-text">
+        <div class="hi">Hi,</div>
+        <div class="sub">Welcome back to Garage Buddy</div>
+      </div>
+    </div>
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <input type="text" placeholder="Search customer or vehicle..."/>
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </div>
+      <div class="search-btn">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="card">
+    <div class="card-header">
+      <h1>Add New Customer</h1>
+      <a href="/dashboard/" class="btn-back-dash" id="backToDash">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        Back to Dashboard
+      </a>
+    </div>
+ 
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:33%"></div></div>
+ 
+    <div class="steps-nav">
+      <button class="step-tab active" data-step="1" type="button" onclick="goStep(1)">Customer Details</button>
+      <button class="step-tab" data-step="2" type="button" onclick="goStep(2)">Vehicle Details</button>
+      <button class="step-tab" data-step="3" type="button" onclick="goStep(3)">Notes & Save</button>
+    </div>
+ 
+    <form method="POST" action="/customer/" id="customerForm">
+      {% csrf_token %}
+
+      <div class="card-body">
+     
+        <!-- ═══════════════════════════════════════ -->
+        <!-- STEP 1: CUSTOMER DETAILS -->
+        <!-- ═══════════════════════════════════════ -->
+        <div class="step-panel active" id="step1">
+          <div class="sec-label">Customer Information</div>
+     
+          <div class="g3">
+            <div class="field">
+              <label>First Name <span class="req">*</span></label>
+              <input type="text" name="firstName" id="firstName" placeholder="Enter first name"/>
+            </div>
+            <div class="field">
+              <label>Last Name <span class="req">*</span></label>
+              <input type="text" name="lastName" id="lastName" placeholder="Enter last name"/>
+            </div>
+            <div class="field">
+              <label>Customer Code</label>
+              <input type="text" name="customerCode" id="customerCode" placeholder="CUS-001"/>
+            </div>
+          </div>
+     
+          <div class="g2">
+            <div class="field">
+              <label>Phone Number <span class="req">*</span></label>
+              <input type="tel" name="phone" id="phone" placeholder="xxxxx xxxxx"/>
+            </div>
+            <div class="field">
+              <label>Email <span class="req">*</span></label>
+              <input type="email" name="email" id="email" placeholder="email@example.com"/>
+            </div>
+          </div>
+     
+          <div class="field mb12">
+            <label>Address</label>
+            <textarea name="address" id="address" placeholder="Street, area..." rows="2"></textarea>
+          </div>
+     
+          <div class="g2">
+            <div class="field">
+              <label>City / Town</label>
+              <input type="text" name="city" id="city" placeholder="Enter city"/>
+            </div>
+            <div class="field">
+              <label>Pincode / ZIP</label>
+              <input type="text" name="pincode" id="pincode" placeholder="Enter pincode"/>
+            </div>
+          </div>
+     
+          <!-- NEXT BUTTON -->
+          <div class="btn-row">
+            <button class="btn-primary" type="button" onclick="goStep(2)">
+              Next
+              <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+     
+        <!-- ═══════════════════════════════════════ -->
+        <!-- STEP 2: VEHICLE DETAILS -->
+        <!-- ═══════════════════════════════════════ -->
+        <div class="step-panel" id="step2">
+          <div class="sec-label">Vehicle Information</div>
+
+          <div class="g2">
+            <div class="field">
+              <label>Registration No. <span class="req">*</span></label>
+              <input type="text" name="regNo" id="regNo" placeholder="MH-12-AB-1234"/>
+            </div>
+            <div class="field">
+              <label>Vehicle Type <span class="req">*</span></label>
+              <select name="vehicleType" id="vehicleType">
+                <option value="">Select type</option>
+                <option value="Car">🚗 Car</option>
+                <option value="Bike">🏍 Bike</option>
+                <option value="Scooter">🛵 Scooter</option>
+                <option value="SUV">🚙 SUV</option>
+                <option value="Truck">🚚 Truck</option>
+                <option value="Van">🚐 Van</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+     
+          <div class="g3">
+            <div class="field">
+              <label>Name / Brand <span class="req">*</span></label>
+              <input type="text" name="make" id="make" placeholder="Maruti, Hyundai"/>
+            </div>
+            <div class="field">
+              <label>Model <span class="req">*</span></label>
+              <input type="text" name="model" id="model" placeholder="Swift, i20"/>
+            </div>
+            <div class="field">
+              <label>Year <span class="req">*</span></label>
+              <input type="number" name="year" id="year" placeholder="2022" min="1900" max="2026"/>
+            </div>
+          </div>
+     
+          <div class="field mb12">
+            <label>Fuel Type <span class="req">*</span></label>
+            <div class="tog-row" id="fuelBtns">
+              <button class="tog" type="button" data-fuel="Petrol" onclick="togSel(this,'fuel')">⛽ Petrol</button>
+              <button class="tog" type="button" data-fuel="Diesel" onclick="togSel(this,'fuel')">🛢 Diesel</button>
+              <button class="tog" type="button" data-fuel="CNG" onclick="togSel(this,'fuel')">🌿 CNG</button>
+              <button class="tog" type="button" data-fuel="Electric" onclick="togSel(this,'fuel')">⚡ Electric</button>
+              <button class="tog" type="button" data-fuel="Hybrid" onclick="togSel(this,'fuel')">🔋 Hybrid</button>
+            </div>
+            <input type="hidden" name="fuelType" id="fuelType" value=""/>
+          </div>
+     
+          <div class="g2">
+            <div class="field">
+              <label>Transmission <span class="req">*</span></label>
+              <select name="transmission" id="transmission">
+                <option value="">Select transmission</option>
+                <option value="Manual">Manual</option>
+                <option value="Automatic">Automatic</option>
+                <option value="CVT">CVT</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Odometer (km)</label>
+              <div class="odo-wrap">
+                <input type="number" name="odometer" id="odometer" placeholder="45000" style="padding-right:32px"/>
+                <span class="odo-unit">km</span>
+              </div>
+            </div>
+          </div>
+     
+          <div class="btn-row">
+            <button class="btn-secondary" type="button" onclick="goStep(1)">← Back</button>
+            <button class="btn-primary" type="button" onclick="goStep(3)">
+              Notes & Save
+              <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+     
+        <!-- ═══════════════════════════════════════ -->
+        <!-- STEP 3: NOTES + SAVE (UNCHANGED) -->
+        <!-- ═══════════════════════════════════════ -->
+        <div class="step-panel" id="step3">
+          <div class="sec-label">Notes & Preferences</div>
+     
+          <div class="field mb12"><label>Known Issues / Common Complaints</label><textarea name="knownIssues" id="knownIssues" placeholder="Repeated brake noise, AC problem, suspension rattle…" rows="2"></textarea></div>
+          <div class="field mb16"><label>Service Preferences</label><textarea name="preferences" id="preferences" placeholder="Premium parts only, specific timing, dealer-style report…" rows="2"></textarea></div>
+     
+          <div class="check-row">
+            <input type="checkbox" name="waiverAgreed" id="waiver"/>
+            <label for="waiver">Customer agrees to standard terms & conditions (waiver) and allows sending service reminders via their preferred contact method.</label>
+          </div>
+     
+          <div class="bottom-panel">
+            <div class="notes-box">
+              <div class="nb-title">Summary Preview</div>
+              <div class="note-row"><span class="nk">Customer</span><span class="nv" id="sum-name">—</span></div>
+              <div class="note-row"><span class="nk">Vehicle</span><span class="nv" id="sum-vehicle">—</span></div>
+              <div class="note-row"><span class="nk">Reg. No.</span><span class="nv" id="sum-reg">—</span></div>
+              <div class="note-row"><span class="nk">Fuel / TX</span><span class="nv" id="sum-fuel">—</span></div>
+            </div>
+            <div class="action-box">
+              <div class="ab-title">Grand Total</div>
+              <div class="ab-sub" id="sum-phone-city">Ready to save customer profile.</div>
+              <button class="btn-secondary" type="button" onclick="goStep(2)">← Back</button>
+              <button class="btn-generate" type="button" id="submitBtn">Save Customer Profile</button>
+            </div>
+          </div>
+        </div>
+     
+      </div>
+    </form>
+  </div>
+ 
+  <script>
+    let selFuel='';
+ 
+    function goStep(n) {
+      document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('step'+n).classList.add('active');
+      document.querySelectorAll('.step-tab').forEach(t => {
+        const s = parseInt(t.dataset.step);
+        t.classList.remove('active','done');
+        if(s === n) t.classList.add('active');
+        else if(s < n) t.classList.add('done');
+      });
+      document.getElementById('progressFill').style.width = (n===1?33:n===2?66:100)+'%';
+
+      // Show "Back to Dashboard" only on Step 1
+      const backBtn = document.getElementById('backToDash');
+      if(backBtn) {
+        if(n === 1) backBtn.classList.remove('hidden');
+        else backBtn.classList.add('hidden');
+      }
+
+      if(n===3) buildSummary();
+      document.querySelector('.card-body').scrollTop = 0;
+    }
+ 
+    function togSel(btn, group) {
+      const map = {fuel:'#fuelBtns'};
+      document.querySelectorAll(map[group]+' .tog').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      if(group==='fuel') {
+        selFuel = btn.dataset.fuel;
+        document.getElementById('fuelType').value = selFuel;
+      }
+    }
+ 
+    function g(id) { 
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : ''; 
+    }
+ 
+    function buildSummary() {
+      const fn=g('firstName'), ln=g('lastName');
+      document.getElementById('sum-name').textContent = (fn||ln) ? fn+' '+ln : '—';
+      const v = [g('make'),g('model'),g('year')].filter(Boolean).join(' ');
+      document.getElementById('sum-vehicle').textContent = v || '—';
+      document.getElementById('sum-reg').textContent = g('regNo') || '—';
+      document.getElementById('sum-fuel').textContent = selFuel || '—';
+      const ph=g('phone'), city=g('city');
+      document.getElementById('sum-phone-city').textContent = [ph,city].filter(Boolean).join(' · ') || 'Ready to save.';
+    }
+ 
+    function saveCustomer() {
+      console.log('=== SAVE CUSTOMER FUNCTION CALLED ===');
+      
+      const fn = g('firstName'), ln = g('lastName'), ph = g('phone'), em = g('email');
+      const regNo = g('regNo'), make = g('make'), model = g('model'), year = g('year');
+      const fuel = document.getElementById('fuelType').value;
+      const transmission = g('transmission');
+      
+      console.log('Form values:', {
+        firstName: fn,
+        lastName: ln,
+        phone: ph,
+        email: em,
+        regNo: regNo,
+        make: make,
+        model: model,
+        year: year,
+        fuelType: fuel,
+        transmission: transmission
+      });
+      
+      if(!fn || !ln) { 
+        console.error('❌ Missing first/last name');
+        alert('❌ First Name and Last Name required!'); 
+        return false; 
+      }
+      if(!ph) { 
+        console.error('❌ Missing phone');
+        alert('❌ Phone number required!'); 
+        return false; 
+      }
+      if(!em) { 
+        console.error('❌ Missing email');
+        alert('❌ Email required!'); 
+        return false; 
+      }
+      if(!regNo || !make || !model || !year) { 
+        console.error('❌ Missing vehicle details');
+        alert('❌ Vehicle details (Reg No, Name/Brand, Model, Year) required!'); 
+        return false; 
+      }
+      if(!fuel) { 
+        console.error('❌ Missing fuel type');
+        alert('❌ Fuel Type required!'); 
+        return false; 
+      }
+      if(!transmission) { 
+        console.error('❌ Missing transmission');
+        alert('❌ Transmission required!'); 
+        return false; 
+      }
+      
+      console.log('✓ All validations passed!');
+      console.log('✓ Submitting form with ID: customerForm');
+      document.getElementById('customerForm').submit();
+      return false;
+    }
+    
+    // Attach submit handler to button
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('✓ DOM Loaded - Attaching form handlers');
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const customerForm = document.getElementById('customerForm');
+      
+      if(!submitBtn) {
+        console.error('❌ Submit button not found!');
+        return;
+      }
+      
+      if(!customerForm) {
+        console.error('❌ Customer form not found!');
+        return;
+      }
+      
+      console.log('✓ Submit button and form found');
+      
+      submitBtn.addEventListener('click', function(e) {
+        console.log('✓ Submit button clicked!');
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if(saveCustomer()) {
+          // saveCustomer already calls submit() if validation passes
+          return;
+        }
+      });
+      
+      customerForm.addEventListener('submit', function(e) {
+        console.log('✓ Form submit event triggered');
+      });
+    });
+  </script>
+</body>
+</html>
